@@ -1,7 +1,4 @@
 # Data Dictionary
-## Sales 2023 ETL Project
-
----
 
 ## Overview
 
@@ -10,8 +7,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 **Last Updated:** September 2025  
 **Total Tables:** 7 
 **Total Records:** ~1.5K 
-
----
 
 ## Table: Sales_2023 (Fact Table)
 
@@ -51,8 +46,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Customer and Product attributes denormalized for performance
 - OrderCountry/City may differ from Customer location (ship-to address)
 
----
-
 ## Table: Products (Dimension)
 
 **Description:** Product master data with specifications and attributes.
@@ -77,8 +70,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - PackageSize normalized from various formats (6x330ml → 6 × 0,33 L)
 - All units converted to base forms (ml→L, g→kg)
 - EAN codes validated for 13-digit length
-
----
 
 ## Table: Customers (Dimension)
 
@@ -105,8 +96,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Phone standardized: +[country code][number] with no formatting
 - Country names standardized (Poland/polska/PL → Poland)
 
----
-
 ## Table: Returns (Supporting)
 
 **Description:** Post-sale return transactions linked to orders.
@@ -130,8 +119,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Not all orders have returns (~5% return rate)
 - Separate table avoids null values in fact table
 
----
-
 ## Table: Fees (Supporting)
 
 **Description:** Fee structure for sales channels (Poland market only).
@@ -152,8 +139,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 **Notes:**
 - Only Poland market currently covered
 - FeeValue interpretation depends on FeeType (% vs Fixed)
-
----
 
 ## Table: Shipping (Supporting)
 
@@ -179,8 +164,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Only Polish orders have shipping data
 - Separate table avoids nulls for non-Polish orders (76% of data)
 
----
-
 ## Table: Targets (Supporting)
 
 **Description:** Monthly sales targets by salesperson.
@@ -202,8 +185,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Long format (already unpivoted from wide format)
 - MonthNumber added for easier joining with date fields
 - Enables actual vs target performance analysis
-
----
 
 ## Data Quality Standards
 
@@ -231,8 +212,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - **Uniqueness:** All primary keys validated unique
 - **Format Consistency:** Standardized formats enforced
 - **Referential Integrity:** All foreign keys validated
-
----
 
 ## Business Rules & Constraints
 
@@ -269,8 +248,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 ### Targets
 - MonthNumber range: 1-12
 - Target must be positive
-  
----
 
 ## Calculated Fields
 
@@ -278,8 +255,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 |-------|-------|---------|---------|
 | SalesAmount | Sales_2023 | Qty × UnitPrice | Transaction value in original currency |
 | MonthNumber | Targets | Month name → Number | Enables date-based joins |
-
----
 
 ## Data Lineage
 
@@ -297,7 +272,6 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - null reduction: 93%
 - Valid foreign keys: 100%
 
----
 
 ## Usage Notes
 
@@ -317,5 +291,3 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Not all orders have returns/shipping data
 - Targets are monthly, sales are daily
 - Segment definitions may change over time
-
----
