@@ -281,50 +281,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 
 ---
 
-## Lookup Values
-
-### Segment (Customers, Sales_2023)
-- VIP
-- Regular
-- New
-
-### Channel (Sales_2023, Fees)
-- Wholesale
-- Online
-- Retail
-
-### Status (Returns)
-- Pending
-- Approved
-- Rejected
-
-### Carrier (Shipping)
-- DHL
-- DPD
-- InPost
-- GLS
-
-### DeliveryType (Shipping)
-- Express
-- Standard
-- Economy
-- Paczkomat
-
-### FeeType (Fees)
-- % (percentage)
-- Fixed (fixed amount)
-
----
-
 ## Data Lineage
-
-### Source Systems
-- **Sales Q1/Q2:** Excel exports from CRM
-- **Products:** Product catalog Excel file
-- **Customers:** Customer database export
-- **Returns:** Support system export
-- **Fees/Shipping:** Operations spreadsheets (Poland)
-- **Targets:** Sales planning spreadsheet
 
 ### Transformation Process
 1. **Extract:** Loaded from Excel files
@@ -360,11 +317,3 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Not all orders have returns/shipping data
 - Targets are monthly, sales are daily
 - Segment definitions may change over time
-
----
-
-**Document Version:** 1.0  
-**Last Updated:** September 2025  
-**Maintained By:** Monika Burnejko  
-**Project:** Sales 2023 Data Wrangling
-
