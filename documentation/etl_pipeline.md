@@ -96,7 +96,6 @@ Applied to every data source:
 1. Create relationships:
    - Sales.CustomerID → Customers.CustomerID
    - Sales.ProductSKU → Products.ProductSKU
-   - Returns.OrderID → Sales.OrderID
 2. Validate referential integrity
 3. Check for orphaned records
 
