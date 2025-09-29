@@ -317,3 +317,5 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - Not all orders have returns/shipping data
 - Targets are monthly, sales are daily
 - Segment definitions may change over time
+
+---
