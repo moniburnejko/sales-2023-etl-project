@@ -87,8 +87,8 @@ This project uses synthetic sales data created to simulate real-world business s
 
 ### Products Normalization
 - **Before:** "6x330ml", "24 × 330 ml", "0.5L", "500g" 
-- **After:** Standardized format "6 × 0.33 L" with separated PackCount and UnitType
-
+- **After:** Standardized format "6 × 0.33 L"
+  
 ### Shipping Data Parsing
 - **Before:** "DPD | Express | 2–4d"
 - **After:** Separate fields for Carrier, DeliveryType, EstimatedDays
