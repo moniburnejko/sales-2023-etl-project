@@ -167,7 +167,7 @@ This project reinforced several critical data engineering principles:
 
 This project uses synthetic data created for portfolio demonstration. All data is fictional and safe for public sharing.
 
-
+---
 
 <p align="center">
 ⭐ If you found this project helpful, please consider giving it a star!
