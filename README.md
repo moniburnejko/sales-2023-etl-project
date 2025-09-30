@@ -53,7 +53,6 @@ graph LR
     D --> E[Validation]
     E --> F[Star Schema]
 ```
-
 ## 📁 Project Structure
 
 ```
@@ -101,7 +100,7 @@ sales-2023-etl-project/
 #### Date Standardization
 ```
 Before: 03/30/23, 28.01.2023, 2023-Jan-06, 44937 (Excel serial)
-After:  2023-03-30 (ISO 8601 format)
+After:  2023-03-30
 ```
 
 #### Product Package Normalization  
@@ -113,9 +112,8 @@ After:  "6 × 0.33 L" (standardized format)
 #### Shipping Data Parsing
 ```
 Before: "DPD | Express | 2–4d"
-After:  Carrier: DPD, Type: Express, Days: 2-4
+After:  Carrier: DPD, DeliveryType: Express, EstimatedDeliveryDays: 2-4
 ```
-
 </details>
 
 ## 🚀 How to Use This Project
@@ -168,6 +166,8 @@ This project reinforced several critical data engineering principles:
 ## 📝 License
 
 This project uses synthetic data created for portfolio demonstration. All data is fictional and safe for public sharing.
+
+
 
 <p align="center">
 ⭐ If you found this project helpful, please consider giving it a star!
