@@ -10,7 +10,7 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 - **Total Records:** ~1,500
 - **Optimization:** Denormalized for query performance
 
-## 🌟 Table Structures
+## Table Structures
 
 ### FACT TABLE
 
@@ -43,10 +43,10 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | **Channel** | Text | Sales channel | Wholesale |
 
 **Key Features:**
-- ✅ Primary Key: OrderID
-- 🔗 Foreign Keys: CustomerID, ProductSKU
-- 🧮 Calculated Field: SalesAmount
-- ⚡ Denormalized for performance
+- Primary Key: OrderID
+- Foreign Keys: CustomerID, ProductSKU
+- Calculated Field: SalesAmount
+- Denormalized for performance
 
 ### DIMENSION TABLES
 
@@ -136,7 +136,7 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | **Target** | Decimal | Monthly sales target | 58637 |
 | **Note** | Text | Additional notes | (optional) |
 
-## 🔗 Relationship Summary
+## Relationship Summary
 
 ### Relationships Diagram
 
@@ -190,7 +190,7 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 - Enables variance analysis
 - Supports what-if scenarios
 
-## 📈 Performance Optimization
+## Performance Optimization
 
 ### Query Performance Gains
 
@@ -201,7 +201,7 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | Channel Performance | 4 joins | 0 joins | 90% faster |
 | Daily Aggregations | 3 joins | 0 joins | 80% faster |
 
-## 📊 Data Quality Achievements
+## Data Quality Achievements
 
 | Quality Metric | Result | Impact |
 |----------------|--------|--------|
@@ -211,24 +211,12 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | **NULL Minimization** | 93% reduction | Storage efficiency |
 | **Referential Integrity** | 100% | Reliable relationships |
 
-## 🔄 ETL Process Overview
+## ETL Process Overview
 
 ### Data Flow
 
-```mermaid
-graph TD
-    A[8 Raw Files] --> B[Power Query ETL]
-    B --> C[Data Validation]
-    C --> D[Custom Functions]
-    D --> E[Standardization]
-    E --> F[Deduplication]
-    F --> G[Enrichment]
-    G --> H[Star Schema]
-    
-    H --> I[Sales_2023<br/>Fact Table]
-    H --> J[Products<br/>Dimension]
-    H --> K[Customers<br/>Dimension]
-    H --> L[Supporting<br/>Tables]
+```
+8 Raw Files → Power Query ETL → Data Validation → Custom Functions → Standardization → Deduplication → Enrichment → Star Schema (Sales_2023 Fact, Products Dim, Customers Dim, Supporting Tables)
 ```
 
 ### Key Transformations Applied
@@ -243,7 +231,7 @@ graph TD
 | **Shipping** | Field parsing (pipe-delimited) | 200 shipping records |
 | **Targets** | Unpivot from wide to long | 42 monthly targets |
 
-## 🚀 Scalability Considerations
+## Scalability Considerations
 
 ### Future Enhancements
 - Add Q3/Q4 data to Sales_2023
@@ -257,7 +245,7 @@ graph TD
 - Weekly integrity checks
 - Document all schema changes
 
-## 📋 Technical Specifications
+## Technical Specifications
 
 | Specification | Value |
 |--------------|-------|
@@ -268,5 +256,5 @@ graph TD
 | **Foreign Keys** | 100% referential integrity |
 | **Calculated Fields** | SalesAmount, MonthNumber |
 | **Tools Used** | Power Query, Excel |
-| **ETL Process**: Extract → Transform → Load → Validate  
+| **ETL Process** | Extract → Transform → Load → Validate  
 | **Processing Time** | < 2 minutes |
