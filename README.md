@@ -45,14 +45,10 @@ Created **7 reusable M language functions** for robust data transformation:
 
 ### Transformation Pipeline
 
-```mermaid
-graph LR
-    A[8 Raw Files] --> B[Power Query]
-    B --> C[Custom Functions]
-    C --> D[50+ Transformations]
-    D --> E[Validation]
-    E --> F[Star Schema]
 ```
+8 Raw Files → Power Query → Custom Functions → 50+ Transformations → Validation → Star Schema
+```
+
 ## 📁 Project Structure
 
 ```
