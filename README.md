@@ -38,6 +38,16 @@ Created 6 reusable M language functions for robust data transformation:
 
 ## 📁 Data Sources & Outputs
 
+### Data Sources
+
+This project uses synthetic sales data created to simulate real-world business scenarios and data quality issues. The dataset includes:
+- 2,000+ synthetic transactions
+- Realistic Polish customer names and addresses  
+- Intentional data quality issues for ETL demonstration
+- Business patterns based on real retail scenarios
+
+**Note:** All data is completely synthetic and safe for public sharing.
+
 ### Input Files (8 sources)
 | Source | Records | Key Issues |
 |--------|---------|------------|
