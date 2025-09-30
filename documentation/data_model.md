@@ -17,32 +17,30 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 #### **Sales_2023** (850 records)
 > Central fact table containing all sales transactions with denormalized attributes for performance.
 
-```sql
-CREATE TABLE Sales_2023 (
-    OrderID         VARCHAR(10) PRIMARY KEY,
-    OrderDate       DATE NOT NULL,
-    CustomerID      VARCHAR(10) REFERENCES Customers(CustomerID),
-    CustomerName    VARCHAR(100),  -- Denormalized
-    Email          VARCHAR(100),   -- Denormalized
-    Phone          VARCHAR(20),    -- Denormalized
-    CustomerCountry VARCHAR(50),   -- Denormalized
-    CustomerCity   VARCHAR(50),    -- Denormalized
-    Segment        VARCHAR(20),    -- Denormalized
-    ProductSKU     VARCHAR(10) REFERENCES Products(ProductSKU),
-    ProductName    VARCHAR(100),   -- Denormalized
-    Category       VARCHAR(50),    -- Denormalized
-    Subcategory    VARCHAR(50),    -- Denormalized
-    UnitCost       DECIMAL(10,2),  -- Denormalized
-    Qty            INTEGER NOT NULL CHECK (Qty > 0),
-    UnitPrice      DECIMAL(10,2) NOT NULL,
-    SalesAmount    DECIMAL(10,2),  -- Calculated: Qty × UnitPrice
-    Currency       VARCHAR(3),
-    OrderCountry   VARCHAR(50),
-    OrderCity      VARCHAR(50),
-    Salesperson    VARCHAR(50),
-    Channel        VARCHAR(20)
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **OrderID** | Text (PK) | Unique order identifier | O312146 |
+| **OrderDate** | Date | Transaction date | 2023-03-29 |
+| **CustomerID** | Text (FK) | Customer identifier | C1112 |
+| **CustomerName** | Text | Customer full name (denormalized) | Kasia Mazur |
+| **Email** | Text | Customer email (denormalized) | kasia.mazur@mail.com |
+| **Phone** | Text | Customer phone (denormalized) | +420623497528 |
+| **CustomerCountry** | Text | Customer's country (denormalized) | Poland |
+| **CustomerCity** | Text | Customer's city (denormalized) | Gdańsk |
+| **Segment** | Text | Customer segment (denormalized) | VIP |
+| **ProductSKU** | Text (FK) | Product identifier | P3091-A |
+| **ProductName** | Text | Product name (denormalized) | Laundry Liquid |
+| **Category** | Text | Product category (denormalized) | Household |
+| **Subcategory** | Text | Product subcategory (denormalized) | Paper |
+| **UnitCost** | Decimal | Product unit cost (denormalized) | 3.30 |
+| **Qty** | Integer | Quantity sold | 5 |
+| **UnitPrice** | Decimal | Selling price per unit | 175.26 |
+| **SalesAmount** | Decimal | Calculated: Qty × UnitPrice | 876.30 |
+| **Currency** | Text | Original transaction currency | PLN |
+| **OrderCountry** | Text | Delivery country | Latvia |
+| **OrderCity** | Text | Delivery city | Riga |
+| **Salesperson** | Text | Sales representative | E. Dabrowska |
+| **Channel** | Text | Sales channel | Wholesale |
 
 **Key Features:**
 - ✅ Primary Key: OrderID
@@ -55,69 +53,60 @@ CREATE TABLE Sales_2023 (
 #### **Products** (60 records)
 > Product master data with specifications and attributes.
 
-```sql
-CREATE TABLE Products (
-    ProductSKU    VARCHAR(10) PRIMARY KEY,
-    ProductName   VARCHAR(100) NOT NULL,
-    Category      VARCHAR(50) NOT NULL,
-    Subcategory   VARCHAR(50) NOT NULL,
-    UnitCost      DECIMAL(10,2) NOT NULL CHECK (UnitCost > 0),
-    Active        BOOLEAN NOT NULL,
-    Supplier      VARCHAR(100),
-    PackageSize   VARCHAR(50) NOT NULL,
-    EAN           VARCHAR(13) NOT NULL
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **ProductSKU** | Text (PK) | Unique product identifier | P2824-A |
+| **ProductName** | Text | Product name | Bbq Chips |
+| **Category** | Text | Main product category | Beverages |
+| **Subcategory** | Text | Product subcategory | Coffee |
+| **UnitCost** | Decimal | Cost per unit | 34.48 |
+| **Active** | Boolean | Product availability status | false |
+| **Supplier** | Text | Supplier name | Baltic Co. |
+| **PackageSize** | Text | Standardized package format | 1 × 1 kg |
+| **EAN** | Text | European Article Number (barcode) | 130201276659 |
 
 #### **Customers** (120 records)
 > Customer master data with contact information and segmentation.
 
-```sql
-CREATE TABLE Customers (
-    CustomerID    VARCHAR(10) PRIMARY KEY,
-    CustomerName  VARCHAR(100) NOT NULL,
-    Email        VARCHAR(100) NOT NULL UNIQUE,
-    Phone        VARCHAR(20) NOT NULL,
-    Country      VARCHAR(50) NOT NULL,
-    City         VARCHAR(50) NOT NULL,
-    Segment      VARCHAR(20) NOT NULL,
-    JoinDate     DATE NOT NULL,
-    VAT          VARCHAR(20)
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **CustomerID** | Text (PK) | Unique customer identifier | C1000 |
+| **CustomerName** | Text | Full customer name | Ola Lewandowski |
+| **Email** | Text | Email address (normalized) | ola.lewandowski@firma.pl |
+| **Phone** | Text | Phone number (standardized) | +491773955087 |
+| **Country** | Text | Customer country | Lithuania |
+| **City** | Text | Customer city | Vilnius |
+| **Segment** | Text | Customer segment | VIP |
+| **JoinDate** | Date | Customer registration date | 2023-03-19 |
+| **VAT** | Text | VAT/Tax number | (varies) |
 
 ### SUPPORTING TABLES
 
 #### **Returns** (40 records)
 > Post-sale return transactions linked to orders.
 
-**Relationship**: 1:M with Sales_2023
+**Relationship**: 1:many with Sales_2023
 
-```sql
-CREATE TABLE Returns (
-    ReturnID  VARCHAR(10) PRIMARY KEY,
-    OrderID   VARCHAR(10) REFERENCES Sales_2023(OrderID),
-    Reason    VARCHAR(50) NOT NULL,
-    Date      DATE NOT NULL,
-    Status    VARCHAR(20) NOT NULL
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **ReturnID** | Text (PK) | Unique return identifier | R10000 |
+| **OrderID** | Text (FK) | Reference to original order | O500099 |
+| **Reason** | Text | Return reason category | Other |
+| **Date** | Date | Return processing date | 2023-05-21 |
+| **Status** | Text | Current return status | Pending |
 
 #### **Fees** (6 records)
 > Fee structure for sales channels (Poland market only).
 
-**Relationship**: M:1 with Sales_2023  
+**Relationship**: many:1 with Sales_2023  
 **Coverage**: Poland only
 
-```sql
-CREATE TABLE Fees (
-    Channel   VARCHAR(20) NOT NULL,
-    Country   VARCHAR(50) NOT NULL,
-    FeeType   VARCHAR(10) NOT NULL,
-    FeeValue  DECIMAL(5,2) NOT NULL,
-    PRIMARY KEY (Channel, Country, FeeType)
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **Channel** | Text | Sales channel | Online |
+| **Country** | Text | Market (always Poland) | Poland |
+| **FeeType** | Text | Fee calculation type | % |
+| **FeeValue** | Decimal | Fee amount or percentage | 2.5 |
 
 #### **Shipping** (200 records)
 > Shipping details for delivered orders (Poland market only).
@@ -125,43 +114,44 @@ CREATE TABLE Fees (
 **Relationship**: 1:1 with Sales_2023  
 **Coverage**: Poland only (~24% of orders)
 
-```sql
-CREATE TABLE Shipping (
-    OrderID           VARCHAR(10) PRIMARY KEY REFERENCES Sales_2023(OrderID),
-    Carrier           VARCHAR(20) NOT NULL,
-    DeliveryType      VARCHAR(20) NOT NULL,
-    EstimatedDelivery VARCHAR(10) NOT NULL,
-    ShippingCostPLN   DECIMAL(10,2) NOT NULL CHECK (ShippingCostPLN >= 0),
-    Address           VARCHAR(200) NOT NULL
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **OrderID** | Text (FK) | Reference to order | O881975 |
+| **Carrier** | Text | Shipping provider | DHL |
+| **DeliveryType** | Text | Service level | Express |
+| **EstimatedDelivery** | Text | Delivery timeframe | 2-4d |
+| **ShippingCostPLN** | Decimal | Shipping cost in PLN | 25.49 |
+| **Address** | Text | Delivery address | al. Piłsudskiego 12/5, 90-368 Łódź |
 
 #### **Targets** (42 records)
 > Monthly sales targets by salesperson.
 
-**Relationship**: M:1 with Sales_2023
+**Relationship**: many:1 with Sales_2023
 
-```sql
-CREATE TABLE Targets (
-    Salesperson  VARCHAR(50) NOT NULL,
-    Month        VARCHAR(3) NOT NULL,
-    MonthNumber  INTEGER NOT NULL CHECK (MonthNumber BETWEEN 1 AND 12),
-    Target       DECIMAL(10,2) NOT NULL CHECK (Target > 0),
-    Note         VARCHAR(200),
-    PRIMARY KEY (Salesperson, Month)
-);
-```
+| Column | Data Type | Description | Example |
+|--------|-----------|-------------|---------|
+| **Salesperson** | Text | Sales representative name | A. Zielińska |
+| **Month** | Text | Month name | Jan |
+| **MonthNumber** | Integer | Numeric month (1-12) | 1 |
+| **Target** | Decimal | Monthly sales target | 58637 |
+| **Note** | Text | Additional notes | (optional) |
 
 ## 🔗 Relationship Summary
 
-| From Table | To Table | Type | Join Keys | Cardinality | Description |
-|------------|----------|------|-----------|-------------|-------------|
-| Products | Sales_2023 | Dimension | ProductSKU | 1:M | Each product can have many sales |
-| Customers | Sales_2023 | Dimension | CustomerID | 1:M | Each customer can have many orders |
-| Sales_2023 | Returns | Fact-Support | OrderID | 1:M | One order can have multiple returns |
-| Sales_2023 | Fees | Fact-Support | Channel + Country | M:1 | Many sales share one fee structure |
-| Sales_2023 | Shipping | Fact-Support | OrderID | 1:1 | One order has one shipping record |
-| Sales_2023 | Targets | Fact-Support | Salesperson + Month | M:1 | Many sales per monthly target |
+### Relationships Diagram
+
+![Diagram](sales_2023_diagram.png)
+
+### Relationship Details
+
+| From Table | To Table | Type | Key Fields | Cardinality |
+|------------|----------|------|------------|-------------|
+| Products | Sales_2023 | Dimension | ProductSKU | 1:many |
+| Customers | Sales_2023 | Dimension | CustomerID | 1:many |
+| Sales_2023 | Returns | Fact to Support | OrderID | 1:many |
+| Sales_2023 | Fees | Fact to Support | Channel + Country | many:1 |
+| Sales_2023 | Shipping | Fact to Support | OrderID | 1:1 |
+| Sales_2023 | Targets | Fact to Support | Salesperson + Month | many:1 |
 
 ## Design Decisions
 
@@ -201,23 +191,6 @@ CREATE TABLE Targets (
 - Supports what-if scenarios
 
 ## 📈 Performance Optimization
-
-### Indexing Strategy
-
-```sql
--- Primary indexes (automatically created)
-CREATE UNIQUE INDEX idx_sales_orderid ON Sales_2023(OrderID);
-CREATE UNIQUE INDEX idx_products_sku ON Products(ProductSKU);
-CREATE UNIQUE INDEX idx_customers_id ON Customers(CustomerID);
-
--- Performance indexes
-CREATE INDEX idx_sales_date ON Sales_2023(OrderDate);
-CREATE INDEX idx_sales_customer ON Sales_2023(CustomerID);
-CREATE INDEX idx_sales_product ON Sales_2023(ProductSKU);
-CREATE INDEX idx_sales_channel ON Sales_2023(Channel);
-CREATE INDEX idx_returns_orderid ON Returns(OrderID);
-CREATE INDEX idx_shipping_orderid ON Shipping(OrderID);
-```
 
 ### Query Performance Gains
 
@@ -295,4 +268,5 @@ graph TD
 | **Foreign Keys** | 100% referential integrity |
 | **Calculated Fields** | SalesAmount, MonthNumber |
 | **Tools Used** | Power Query, Excel |
+| **ETL Process**: Extract → Transform → Load → Validate  
 | **Processing Time** | < 2 minutes |
