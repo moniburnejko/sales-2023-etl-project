@@ -1,124 +1,77 @@
-# Sales 2023 Data Wrangling & ETL Project 🔧
+# 📁 Data Directory
 
-## Project Overview
-Enterprise-level data transformation project converting fragmented, inconsistent sales data into a clean, relational analytical model using advanced Power Query techniques.
+## Overview
 
-**Key Achievement:** Transformed 8 fragmented sales files (2,000+ records) with severe quality issues into a production-ready star schema, eliminating 15% duplicates and standardizing 50+ format inconsistencies.
+This directory contains synthetic sales data demonstrating real-world ETL challenges and their solutions.
 
-## 📊 Business Problem
-Sales operations generated data across 8 separate sources with critical quality issues preventing reliable analysis:
-- **Data Fragmentation:** Multiple disconnected files (transactions, products, customers, returns, fees, shipping, targets)
-- **Quality Issues:** Duplicates, inconsistent formats, conflicting units, typos
-- **Integration Complexity:** Multiple records per OrderID causing merge complications
-- **Partial Coverage:** Country-specific data requiring careful relational design
-
-## 🛠 Technical Solution
-
-### Technologies Used
-- **Microsoft Excel** - Data storage and final output
-- **Power Query** - ETL engine
-- **M Language** - Custom transformation functions
-- **Data Modeling** - Star schema design
-
-### Custom Functions Developed
-Created 6 reusable M language functions for robust data transformation:
-1. **fxDate** - Handles mixed date formats and invalid dates
-2. **fxNumber** - Validates numeric data with decimal separator handling  
-3. **fxText** - Standardizes text fields and removes special characters
-4. **fxCountry** - Consolidates country name variants
-5. **fxLogical** - Standardizes boolean values (Yes/No/1/0/TRUE/FALSE)
-6. **fxDiacritics** - Replaces Polish characters for system compatibility
-
-### Key Transformations
-- **50+ cleaning operations** across all data sources
-- **Complex unit parsing** - Converted mixed formats (6x330ml, 0.5L, 500g) to standardized units
-- **Composite field splitting** - Parsed concatenated strings into structured fields
-- **Wide-to-long transformation** - Restructured targets data for analysis
-- **Deduplication logic** - Removed duplicates while preserving data integrity
-
-## 📁 Data Sources & Outputs
-
-### Data Sources
-
-This project uses synthetic sales data created to simulate real-world business scenarios and data quality issues. The dataset includes:
-- 2,000+ synthetic transactions
-- Realistic Polish customer names and addresses  
-- Intentional data quality issues for ETL demonstration
-- Business patterns based on real retail scenarios
-
-**Note:** All data is completely synthetic and safe for public sharing.
-
-### Input Files (8 sources)
-| Source | Records | Key Issues |
-|--------|---------|------------|
-| Sales Q1 & Q2 | ~850 | Duplicates, inconsistent dates, mismatched columns |
-| Products | ~100 | Mixed package formats, typos, duplicate SKUs |
-| Customers | ~200 | Inconsistent formats, unvalidated data |
-| Returns | ~50 | Inconsistent reason text, mixed date formats |
-| Fees | ~20 | Duplicates, Poland-only coverage |
-| Shipping | ~150 | Composite text fields, unstructured data |
-| Targets | ~12 | Wide format requiring unpivot |
-
-### Output Structure
-**Star Schema with:**
-- 1 Fact Table (Sales_2023)
-- 2 Dimension Tables (Products, Customers)  
-- 4 Supporting Tables (Returns, Fees, Shipping, Targets)
-
-## 🎯 Results & Impact
-
-### Data Quality Improvements
-- **Eliminated 15%+ duplicate records** across all tables
-- **Standardized 50+ format variants** (dates, countries, currencies)
-- **100% data validation** - All dates, numbers, and EANs verified
-- **Unified measurement systems** - Consistent units across products
-
-### Business Value Delivered
-- **Unified View:** Consolidated fragmented data for complete 2023 visibility
-- **Analysis Ready:** Clean data model enabling immediate business intelligence
-- **Scalable Solution:** Reusable functions for future data ingestion
-- **Time Savings:** Automated cleaning process replacing manual work
-
-## 📸 Before & After Examples
-
-### Sales Data Transformation
-- **Before:** Duplicates, mixed date formats, inconsistent country names
-- **After:** Clean, standardized records with validated data types
-
-### Products Normalization
-- **Before:** "6x330ml", "24 × 330 ml", "0.5L", "500g" 
-- **After:** Standardized format "6 × 0.33 L"
-  
-### Shipping Data Parsing
-- **Before:** "DPD | Express | 2–4d"
-- **After:** Separate fields for Carrier, DeliveryType, EstimatedDays
-
-## 🚀 How to Use
-
-1. **Download the cleaned dataset** from `/data/processed/`
-2. **Review the data dictionary** in `/documentation/`
-3. **Apply custom functions** from `/queries/` to your own data
-4. **Follow the ETL pipeline guide** for step-by-step transformation
-
-## 📚 Repository Structure
+## Directory Structure
 
 ```
-├── data/               # Raw and processed datasets
-├── documentation/      # Detailed project documentation
-├── queries/           # Power Query M code and functions
-├── images/            # Screenshots and diagrams
-└── analysis/          # Data quality reports
+data/
+├── sample/                      # Sample datasets for demonstration
+│   ├── sample_data_raw.xlsx    # Original data with quality issues (25 rows)
+│   ├── sample_data_clean.xlsx  # Cleaned data after ETL (25 rows)
+│   └── sample_data_documentation.md  # Detailed issue documentation
+└── README.md                    # This file
 ```
 
-## 💡 Key Learnings
+## Dataset Information
 
-- **Data Quality First:** 80% of effort went into cleaning and standardization
-- **Reusable Functions:** Custom M functions dramatically reduce future ETL time
-- **Relational Design:** Proper table separation prevents null proliferation
-- **Documentation:** Clear documentation ensures reproducibility
+### ⚠️ Important Notice
+**This project uses 100% synthetic data generated for demonstration purposes.**
 
-## 🔗 Project Links
+All names, addresses, email addresses, and company information are fictitious. Any resemblance to real persons, companies, or actual transactions is purely coincidental.
 
-- [Full Project Documentation](https://www.notion.so/monikaburnejko/Sales-2023-Data-Wrangling-ETL-Project-27b1bac67ca980c5b844c13fc59d1f7c)
-- [LinkedIn Profile](https://www.linkedin.com/in/monika-burnejko-9301a1357)
-- [Portfolio](https://www.notion.so/monikaburnejko/Data-Analytics-Portfolio-2761bac67ca9807298aee038976f0085)
+## Sample Data Details
+
+### 📊 sample_data_raw.xlsx
+- **Purpose:** Demonstrates original data quality issues
+- **Size:** ~15 KB
+- **Records:** 25 sales, 15 products, 15 customers
+- **Issues Demonstrated:**
+  - 7 different date formats
+  - 5 country name variations
+  - Mixed package formats
+  - Duplicate records
+  - Inconsistent text casing
+
+### ✅ sample_data_clean.xlsx
+- **Purpose:** Shows data after complete ETL pipeline
+- **Size:** ~18 KB  
+- **Improvements:**
+  - 100% standardized dates
+  - Unified country names
+  - Normalized package sizes
+  - Zero duplicates
+  - Calculated fields added
+
+## Data Quality Issues Simulated
+
+The synthetic data intentionally includes common real-world problems:
+
+| Issue Category | Examples | Count |
+|---------------|----------|-------|
+| **Date Formats** | MM/DD/YY, DD-Mon-YYYY, Excel serials | 7+ formats |
+| **Duplicates** | Repeated OrderIDs | 15% of records |
+| **Text Inconsistency** | "Poland", "polska", "PL" | 50+ variants |
+| **Unit Confusion** | "6x330ml" vs "0.33L x 6" | Multiple formats |
+| **Character Issues** | Mixed cases, Polish diacritics | 100% of text fields |
+
+## How to Use
+
+1. **For Learning**: Compare raw vs clean files to understand transformations
+2. **For Testing**: Apply Power Query functions to raw data
+3. **For Demonstration**: Show stakeholders the value of proper ETL
+4. **For Practice**: Try creating your own cleaning functions
+
+## Full Dataset Statistics
+
+While samples contain 25 records, the full project processed:
+- **2,000+** transaction records
+- **8** separate data sources
+- **50+** unique transformation rules
+- **6** custom M functions
+
+---
+
+*For detailed transformation documentation, see [sample_data_documentation.md](sample/sample_data_documentation.md)*
