@@ -1,3 +1,10 @@
+## Data Samples
+
+This repository includes synthetic sample data demonstrating the ETL transformation:
+- `/data/sample/sample_data_raw.xlsx` - Original data with quality issues (25 rows)
+- `/data/sample/sample_data_clean.xlsx` - Cleaned data after ETL (25 rows)
+- `/data/sample/sample_data_documentation.md` - Detailed documentation of issues
+
 ## Dataset Information
 
 **This project uses 100% synthetic data generated for demonstration purposes.**
