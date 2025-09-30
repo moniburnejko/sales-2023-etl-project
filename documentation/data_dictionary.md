@@ -131,8 +131,8 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 |-------------|-----------|----------|-------------|---------------|----------------|
 | Channel | Text | No | Sales channel | Online | Values: Online, Wholesale, Retail |
 | Country | Text | No | Market (always Poland) | Poland | Currently only "Poland" |
-| FeeType | Text | No | Fee calculation type | % | Values: %, Fixed |
-| FeeValue | Decimal | No | Fee amount or percentage | 2.5 | If %: 0-100; If Fixed: amount in PLN |
+| FeeType | Text | No | Fee calculation type | % | Values: %, Flat |
+| FeeValue | Decimal | No | Fee amount or percentage | 2.5 | If %: 0-100; If Flat: amount in PLN |
 
 **Relationship:** Many-to-One with Sales_2023 (many sales share one fee structure)
 
