@@ -54,7 +54,7 @@ Created **7 reusable M language functions** for robust data transformation:
 ```
 sales-2023-etl-project/
 ├── 📂 data/
-│   ├── sample/                 # Sample datasets demonstrating transformation
+│   ├──📂 sample/               # Sample datasets demonstrating transformation
 │   └── README.md               # Data documentation
 ├── 📂 documentation/
 │   ├── data_dictionary.md      # Comprehensive field documentation
