@@ -494,6 +494,34 @@ in
 Results: 120 customers with clean contact data
 
 ## Phase 5: Data Integration
+```m
+let
+  // Merge with Products
+  MergedWithProducts = Table.NestedJoin(
+      ChangeOrder, {"ProductSKU"},
+      Products, {"ProductSKU"},
+        "ProductDetails", JoinKind.LeftOuter
+    ),
+  ExpandedProducts = Table.ExpandTableColumn(
+      MergedWithProducts, "ProductDetails",
+        {"ProductName", "Category", "Subcategory", "UnitCost"},
+        {"ProductName", "Category", "Subcategory", "UnitCost"}
+    ),
+  
+  // Merge with Customers
+  MergedWithCustomers = Table.NestedJoin(
+    ExpandedProducts, {"CustomerID"},
+    Customers, {"CustomerID"},
+    "Customers", JoinKind.LeftOuter),
+
+  ExpandedCustomers = Table.ExpandTableColumn(
+    MergedWithCustomers, "Customers",
+  {"CustomerName", "Email", "Phone", "Country", "City", "Segment"},
+  {"CustomerName", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment"})
+
+in 
+  ExpandedCustomers
+```
 
 ### 5.1: Create Relationships
 ### 5.2: Validate Referential Integrity
