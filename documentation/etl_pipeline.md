@@ -287,8 +287,211 @@ in
 Results: 850 clean transaction records
 
 ### 4.2: Products Transformation
+```m
+let
+    Source = fxClean(Products),
+
+  // Step 1: Rename columns
+    RenamedColumns = Table.RenameColumns(Source, {{"SKU", "ProductSKU"}}),
+
+  // Step 2: Standardize text columns
+  #"Replaced value" = Table.ReplaceValue(RenamedColumns, "1", "i", Replacer.ReplaceText, {"ProductName"}),
+    
+    StandardizeText = Table.TransformColumns(
+        #"Replaced value", 
+        {
+            {"ProductName", each fxText(_), type text}, 
+            {"Category", each fxText(_), type text}, 
+            {"Subcategory", each fxText(_), type text}
+        }
+    ),
+  // Step 3: Validate numbers
+    ValidateNumbers = Table.TransformColumns(
+        StandardizeText, 
+        {{"UnitCost", each fxNumber(_), type number}}
+    ),
+
+  // Step 4: Logical normalization     
+    LogicalColumn = Table.TransformColumns(
+        ValidateNumbers, 
+        {{"Active", each fxLogical(_), type logical}}
+    ),
+  // Step 5: Complex package size normalization
+    PackageSizeClean = (packageSizeValue) => 
+        let
+            // Step 5.1: Clean and normalize input text
+            txt = 
+                if packageSizeValue = null then 
+                    null 
+                else 
+                    Text.Trim(
+                        Text.Replace(
+                            Text.Replace(
+                                Text.Replace(
+                                    Text.From(packageSizeValue),
+                                    "×", "x"
+                                ),
+                                "X", "x"
+                            ),
+                            "  ", " "
+                        )
+                    ),
+            
+            // Step 5.2: Split by delimiter and determine format
+            parts = if txt = null then {} else Text.Split(txt, "x"),
+            hasDelim = List.Count(parts) > 1,
+            p1 = try Text.Trim(parts{0}) otherwise null,
+            p2 = if hasDelim then try Text.Trim(parts{1}) otherwise null else null,
+            
+            // Step 5.3: Extract pack count (e.g., "6" from "6x330ml")
+            packCount = 
+                if hasDelim then 
+                    let 
+                        digits = Text.Select(p1, {"0".."9"}) 
+                    in 
+                        if digits = "" then 1 else Number.From(digits)
+                else 
+                    1,
+            
+            // Step 5.4: Identify unit candidate (value + unit)
+            unitCandidate = if hasDelim then p2 else p1,
+            u0 = if unitCandidate = null then null else Text.Replace(unitCandidate, " ", ""),
+            
+            // Step 5.5: Separate numeric value and unit symbol
+            rawNum = if u0 = null then "" else Text.Select(u0, {"0".."9", ".", ","}),
+            rawLet = if u0 = null then "" else Text.Select(u0, {"A".."Z", "a".."z"}),
+            
+            // Step 5.6: Normalize unit symbol (ml→L, g→kg, etc.)
+            unitSymbol = 
+                let 
+                    lower = Text.Lower(rawLet) 
+                in 
+                    if lower = "l" then "L" else lower,
+            
+            unitNumber = 
+                if rawNum = "" then 
+                    null 
+                else 
+                    try Number.From(Text.Replace(rawNum, ",", ".")) otherwise null,
+            
+            // Step 5.7: Convert units (ml→L, g→kg)
+            convertedNumber = 
+                if unitSymbol = "ml" then 
+                    if unitNumber = null then null else unitNumber / 1000
+                else if unitSymbol = "g" then 
+                    if unitNumber = null then null else unitNumber / 1000
+                else 
+                    unitNumber,
+            
+            convertedSymbol = 
+                if unitSymbol = "ml" then "L"
+                else if unitSymbol = "g" then "kg"
+                else unitSymbol,
+            
+            // Step 5.8: Format final number with 2 decimal places
+            convertedNumberText = 
+                if convertedNumber = null then 
+                    "" 
+                else 
+                    Number.ToText(convertedNumber, "0.##", "en-US"),
+            
+            // Step 5.9: Build final standardized output
+            result =
+                if convertedNumberText = "" and (convertedSymbol = null or convertedSymbol = "") then
+                    // Case: No unit info (e.g., "6" → "6")
+                    Text.From(packCount)
+                else if convertedNumberText <> "" and convertedSymbol <> "" then
+                    // Case: Full info (e.g., "6x330ml" → "6 × 0.33 L")
+                    Text.From(packCount) & " × " & convertedNumberText & " " & convertedSymbol
+                else if convertedNumberText <> "" then
+                    // Case: Number only (e.g., "6x330" → "6 × 330")
+                    Text.From(packCount) & " × " & convertedNumberText
+                else
+                    // Case: Unit only (e.g., "6xL" → "6 × L")
+                    Text.From(packCount) & " × " & convertedSymbol
+        in
+            result,
+    
+  // Step 6: Apply the PackageSize transformation
+    TransformPackageSize = Table.TransformColumns(
+        LogicalColumn,
+        {{"PackageSize", each PackageSizeClean(_), type text}}
+    ),
+
+  // Step 7: Validate EAN codes
+    ValidateEAN = Table.SelectRows(TransformPackageSize, each Text.Length([EAN]) = 13),
+
+  // Step 8: Remove duplicates
+  RemoveDuplicates = Table.Distinct(ValidateEAN, {"ProductSKU"}),
+
+  // Step 9: Change column type
+  ChangeType = Table.TransformColumnTypes(RemoveDuplicates, {{"ProductSKU", type text}, {"Supplier", type text}, {"EAN", Int64.Type}})
+in
+    ChangeType
+```
+
+Results: 60 products with normalized package sizes
 
 ### 4.3: Customers Transformation
+```m
+let
+    Source = fxClean(Customers),
+    
+    // Step 1: Standardize text columns
+    StandardizeText = Table.TransformColumns(
+        Source,
+        {
+            {"CustomerName", each fxText(_), type text},
+            {"Segment", each fxText(_), type text}
+        }
+    ),
+    
+    // Step 2: Email normalization with diacritics removal
+    NormalizeEmails = Table.TransformColumns(
+        StandardizeText, 
+        {
+            {"Email", each 
+                let
+                    Lower = Text.Lower(_),
+                    NoDiacritics = fxDiacritics(Lower)
+                in
+                    NoDiacritics, 
+                type text
+            }
+        }
+    ),
+    
+    // Step 3: Phone standardization
+    StandardizePhones = Table.TransformColumns(
+        NormalizeEmails, 
+        {
+            {"Phone", each Text.Select(_, {"0".."9", "+"}), type text}
+        }
+    ),
+    
+    // Step 4: Standardize country names
+    StandardizeCountries = Table.TransformColumns(
+        StandardizePhones, 
+        {{"Country", each fxCountry(_), type text}}
+    ),
+    
+    // Step 5: Apply date standardization
+    StandardizeDates = Table.TransformColumns(
+        StandardizeCountries, 
+        {{"JoinDate", each fxDate(_), type date}}
+    ),
+
+    // Step 6: Remove Duplicates
+    RemoveDuplicates = Table.Distinct(StandardizeDates, {"CustomerID"}),
+
+    // Step 7: Change Column Types
+    ChangeType = Table.TransformColumnTypes(RemoveDuplicates, {{"CustomerID", type text}, {"City", type text}, {"VAT", type text}})
+in
+    ChangeType
+
+```
+
+Results: 120 customers with clean contact data
 
 ## Phase 5: Data Integration
 
