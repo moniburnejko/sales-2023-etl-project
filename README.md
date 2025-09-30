@@ -3,14 +3,14 @@
 [![Excel](https://img.shields.io/badge/Excel-217346?style=for-the-badge&logo=microsoft-excel&logoColor=white)](https://www.microsoft.com/excel)
 [![Power Query](https://img.shields.io/badge/Power_Query-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)](https://powerquery.microsoft.com/)
 
-## 🎯 Project Overview
+## Project Overview
 
 Enterprise-level data transformation project converting **8 fragmented sales files** with severe quality issues into a **production-ready star schema**, eliminating **15% duplicates** and standardizing **50+ format inconsistencies**.
 
-### 🏆 Key Achievement
+### Key Achievement
 > Transformed 2,000+ records of chaotic multi-source data into a clean, relational analytical model using advanced Power Query techniques and custom M functions, reducing data processing time from hours to minutes.
 
-## 📊 Business Problem
+## Business Problem
 
 Sales operations generated data across 8 separate sources with critical quality issues preventing reliable analysis:
 
@@ -38,7 +38,7 @@ Created **7 reusable M language functions** for robust data transformation:
 | `fxClean` | Table cleaning & standardization | Clean headers, remove blanks, unify columns |
 | `fxDate` | Date parsing | 7+ mixed date formats |
 | `fxNumber` | Numeric validation | Decimal separator conflicts |
-| `fxRemoveSpecial` | Text special character removal | Keep only valid letters, digits, spaces |
+| `fxText` | Text cleaning & normalization | Unwanted symbols, extra spaces, inconsistent casing |
 | `fxCountry` | Country consolidation | 5+ variants per country |
 | `fxLogical` | Boolean standardization | Yes/No/1/0/TRUE/FALSE |
 | `fxDiacritics` | Character replacement | Polish special characters |
