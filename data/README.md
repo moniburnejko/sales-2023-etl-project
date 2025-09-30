@@ -23,7 +23,7 @@ All names, addresses, email addresses, and company information are fictitious. A
 
 ## Sample Data Details
 
-### 📊 sample_data_raw.xlsx
+### sample_data_raw.xlsx
 - **Purpose:** Demonstrates original data quality issues
 - **Size:** ~25 KB
 - **Records:** 25 sales, 20 products, 20 customers
@@ -34,7 +34,7 @@ All names, addresses, email addresses, and company information are fictitious. A
   - Duplicate records
   - Inconsistent text casing
 
-### ✅ sample_data_clean.xlsx
+### sample_data_clean.xlsx
 - **Purpose:** Shows data after complete ETL pipeline
 - **Size:** ~20 KB  
 - **Improvements:**
