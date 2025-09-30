@@ -140,7 +140,7 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 
 ### Relationships Diagram
 
-![Diagram](sales_2023_diagram.png)
+![Diagram](data_model_diagram.png)
 
 ### Relationship Details
 
