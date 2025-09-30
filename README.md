@@ -2,7 +2,6 @@
 
 [![Excel](https://img.shields.io/badge/Excel-217346?style=for-the-badge&logo=microsoft-excel&logoColor=white)](https://www.microsoft.com/excel)
 [![Power Query](https://img.shields.io/badge/Power_Query-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)](https://powerquery.microsoft.com/)
-[![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)](https://github.com/moniburnejko/sales-2023-etl-project)
 
 ## 🎯 Project Overview
 
@@ -10,8 +9,6 @@ Enterprise-level data transformation project converting **8 fragmented sales fil
 
 ### 🏆 Key Achievement
 > Transformed 2,000+ records of chaotic multi-source data into a clean, relational analytical model using advanced Power Query techniques and custom M functions, reducing data processing time from hours to minutes.
-
----
 
 ## 📊 Business Problem
 
@@ -24,8 +21,6 @@ Sales operations generated data across 8 separate sources with critical quality 
 | **Integration Complexity** | Multiple records per OrderID causing merge complications |
 | **Partial Coverage** | Country-specific data requiring careful relational design |
 
----
-
 ## 🛠 Technical Solution
 
 ### Tech Stack
@@ -36,13 +31,14 @@ Sales operations generated data across 8 separate sources with critical quality 
 
 ### Custom Functions Developed
 
-Created **6 reusable M language functions** for robust data transformation:
+Created **7 reusable M language functions** for robust data transformation:
 
 | Function | Purpose | Issues Resolved |
 |----------|---------|----------------|
+| `fxClean` | Table cleaning & standardization | Clean headers, remove blanks, unify columns |
 | `fxDate` | Date parsing | 7+ mixed date formats |
 | `fxNumber` | Numeric validation | Decimal separator conflicts |
-| `fxText` | Text standardization | Inconsistent casing, typos |
+| `fxRemoveSpecial` | Text special character removal | Keep only valid letters, digits, spaces |
 | `fxCountry` | Country consolidation | 5+ variants per country |
 | `fxLogical` | Boolean standardization | Yes/No/1/0/TRUE/FALSE |
 | `fxDiacritics` | Character replacement | Polish special characters |
@@ -58,8 +54,6 @@ graph LR
     E --> F[Star Schema]
 ```
 
----
-
 ## 📁 Project Structure
 
 ```
@@ -69,15 +63,14 @@ sales-2023-etl-project/
 │   └── README.md               # Data documentation
 ├── 📂 documentation/
 │   ├── data_dictionary.md      # Comprehensive field documentation
-│   ├── data_model.md          # Star schema design details
-│   └── etl_pipeline.md        # Step-by-step transformation guide
+│   ├── data_model.md           # Star schema design details
+│   ├── data_model_diagram.png  # Data modeling diagram
+│   └── etl_pipeline.md         # Step-by-step transformation guide
 ├── 📂 queries/
 │   └── power_query_functions.m # Reusable M code functions
 └── 📂 images/
     └── transformations/        # Before/after screenshots
 ```
-
----
 
 ## 🎯 Results & Impact
 
@@ -127,8 +120,6 @@ After:  Carrier: DPD, Type: Express, Days: 2-4
 
 </details>
 
----
-
 ## 🚀 How to Use This Project
 
 ### Prerequisites
@@ -151,8 +142,6 @@ After:  Carrier: DPD, Type: Express, Days: 2-4
    - Import custom functions from `/queries/power_query_functions.m`
    - Follow the pipeline guide in `/documentation/etl_pipeline.md`
 
----
-
 ## 📚 Documentation
 
 | Document | Description |
@@ -161,8 +150,6 @@ After:  Carrier: DPD, Type: Express, Days: 2-4
 | [Data Model](documentation/data_model.md) | Star schema design and relationships |
 | [ETL Pipeline](documentation/etl_pipeline.md) | Step-by-step transformation guide |
 | [Sample Data Guide](data/sample/sample_data_documentation.md) | Examples of issues and solutions |
-
----
 
 ## 💡 Key Learnings
 
@@ -173,8 +160,6 @@ This project reinforced several critical data engineering principles:
 3. **Relational Design** - Proper table separation prevents null proliferation
 4. **Documentation** - Clear documentation ensures reproducibility
 
----
-
 ## 🔗 Connect
 
 **Monika Burnejko** - Data Analyst  
@@ -182,13 +167,9 @@ This project reinforced several critical data engineering principles:
 💼 [LinkedIn](https://www.linkedin.com/in/monika-burnejko-9301a1357)  
 🌐 [Portfolio](https://www.notion.so/monikaburnejko/Data-Analytics-Portfolio-2761bac67ca9807298aee038976f0085)
 
----
-
 ## 📝 License
 
 This project uses synthetic data created for portfolio demonstration. All data is fictional and safe for public sharing.
-
----
 
 <p align="center">
 ⭐ If you found this project helpful, please consider giving it a star!
