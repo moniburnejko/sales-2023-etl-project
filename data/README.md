@@ -1,4 +1,4 @@
-# 📁 Data Directory
+# Data Directory
 
 ## Overview
 
@@ -6,8 +6,8 @@ This directory contains synthetic sales data demonstrating real-world ETL challe
 
 ## Directory Structure
 ```
-data/
-├── sample/                     
+📂 data/
+├──📂 sample/                     
 │   ├── sample_data_raw.xlsx          # Original messy data
 │   ├── sample_data_clean.xlsx        # Transformed clean data
 │   └── sample_data_documentation.md  # Detailed issue documentation
