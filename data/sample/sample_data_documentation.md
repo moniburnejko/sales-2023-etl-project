@@ -17,7 +17,7 @@ These sample files demonstrate the power of the ETL pipeline that transformed 8 
 **Records:** Matching records from raw sample, fully transformed  
 **File Size:** ~20 KB  
 
-## 🔍 Data Quality Issues Demonstrated
+## Data Quality Issues Demonstrated
 
 ### 1. **Sales Data Issues** (Raw: Sales_2023_Q1 & Sales_2023_Q2)
 
@@ -150,7 +150,7 @@ Multiple date formats similar to sales data:
 
 **Resolution:** `fxCountry` mapping function
 
-## ✅ Clean Data Results
+## Clean Data Results
 
 ### Sales_2023 (Merged & Cleaned)
 - **25 clean records** from Q1 and Q2 combined
@@ -174,7 +174,7 @@ Multiple date formats similar to sales data:
 - **Dates:** All in YYYY-MM-DD format
 - **Countries:** Standardized names
 
-## 🎯 Key Transformations Applied
+## Key Transformations Applied
 
 ### Custom Power Query Functions Used:
 1. **fxClean** - Clean headers, remove blanks, unify columns
@@ -192,7 +192,7 @@ Multiple date formats similar to sales data:
 - **Package formats:** 10+ variations → unified format
 - **Boolean representations:** 8 variations → TRUE/FALSE
 
-## 💡 Why This Matters
+## Why This Matters
 
 This sample demonstrates that even a small dataset (25 rows) can contain **50+ distinct data quality issues**. The ETL pipeline successfully:
 
@@ -204,7 +204,7 @@ This sample demonstrates that even a small dataset (25 rows) can contain **50+ d
 
 The same techniques scale to the full dataset of 2,000+ records, where these issues compound exponentially.
 
-## 📈 Business Impact
+## Business Impact
 
 ### Before ETL:
 - Cannot merge quarterly data (incompatible schemas)
@@ -220,7 +220,7 @@ The same techniques scale to the full dataset of 2,000+ records, where these iss
 - Standardized product comparisons
 - Time-series analysis enabled
 
-## 🔧 Technical Implementation
+## Technical Implementation
 
 ### Power Query M Code Structure:
 ```m
@@ -250,14 +250,14 @@ in
 4. **Merge** → Combine related data
 5. **Load** → Output clean dataset
 
-## 📝 Notes
+## Notes
 
 - This is **synthetic data** created for portfolio demonstration
 - All names, emails, and company information are fictitious
 - Data patterns based on real-world ETL challenges
 - The full dataset contains similar issues at scale (2,000+ records)
 
-## 🚀 Repository Usage
+## Repository Usage
 
 1. **Compare files side-by-side** to understand transformations
 2. **Use as test data** for Power Query functions
