@@ -91,8 +91,6 @@ sales-2023-etl-project/
 ✅ **Scalable Solution** - Reusable functions for future data ingestion  
 ✅ **Time Savings** - Automated cleaning replacing manual work  
 
----
-
 ## 📸 Transformation Examples
 
 ### Before & After Snapshots
