@@ -26,8 +26,8 @@ All names, addresses, email addresses, and company information are fictitious. A
 
 ### 📊 sample_data_raw.xlsx
 - **Purpose:** Demonstrates original data quality issues
-- **Size:** ~15 KB
-- **Records:** 25 sales, 15 products, 15 customers
+- **Size:** ~12 KB
+- **Records:** 25 sales, 20 products, 20 customers
 - **Issues Demonstrated:**
   - 7 different date formats
   - 5 country name variations
@@ -37,7 +37,7 @@ All names, addresses, email addresses, and company information are fictitious. A
 
 ### ✅ sample_data_clean.xlsx
 - **Purpose:** Shows data after complete ETL pipeline
-- **Size:** ~18 KB  
+- **Size:** ~14 KB  
 - **Improvements:**
   - 100% standardized dates
   - Unified country names
