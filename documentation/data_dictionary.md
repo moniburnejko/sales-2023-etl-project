@@ -1,6 +1,6 @@
 # Data Dictionary
 
-## 📚 Overview
+## Overview
 
 This data dictionary provides comprehensive documentation of all tables, fields, data types, and business rules in the Sales 2023 dataset following a star schema design.
 
@@ -11,7 +11,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 **Model Type:** Star Schema with denormalized fact table
 
 
-## 🌟 Table: Sales_2023 (Fact Table)
+## Table: Sales_2023 (Fact Table)
 
 **Description:** Central fact table containing all sales transactions with denormalized customer and product attributes for query performance.
 
@@ -47,11 +47,11 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Channel | Text | NO | Sales channel | Wholesale | Wholesale/Online/Retail |
 
 **Notes:**
-- ⚡ SalesAmount is calculated field (not stored in source)
-- 🔄 Customer and Product attributes denormalized for performance
-- 📍 OrderCountry/City may differ from Customer location (ship-to address)
+- SalesAmount is calculated field (not stored in source)
+- Customer and Product attributes denormalized for performance
+- OrderCountry/City may differ from Customer location (ship-to address)
 
-## 📦 Table: Products (Dimension)
+## Table: Products (Dimension)
 
 **Description:** Product master data with specifications and attributes.
 
@@ -73,8 +73,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | PackageSize | Text | NO | Standardized format | 1 × 1 kg | Format: N × X.XX Unit |
 | EAN | Text | NO | Barcode | 130201276659 | 13 digits |
 
-
-## 👥 Table: Customers (Dimension)
+## Table: Customers (Dimension)
 
 **Description:** Customer master data with contact information and segmentation.
 
@@ -96,7 +95,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | JoinDate | Date | NO | Registration date | 2023-03-19 | Valid date |
 | VAT | Text | YES | VAT/Tax number | PL2880160025 | Country-specific |
 
-## ↩️ Table: Returns (Supporting)
+## Table: Returns (Supporting)
 
 **Description:** Post-sale return transactions linked to orders.
 
@@ -115,8 +114,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Date | Date | NO | Return date | 2023-05-21 | >= OrderDate |
 | Status | Text | NO | Return status | Pending | Pending/Approved/Rejected |
 
-
-## 💰 Table: Fees (Supporting)
+## Table: Fees (Supporting)
 
 **Description:** Fee structure for sales channels (Poland market only).
 
@@ -132,9 +130,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | FeeType | Text | NO | Fee type | % | % or Flat |
 | FeeValue | Decimal | NO | Fee amount | 2.5 | If %: 0-100; If Flat: PLN |
 
----
-
-## 🚚 Table: Shipping (Supporting)
+## Table: Shipping (Supporting)
 
 **Description:** Shipping details for delivered orders (Poland market only).
 
@@ -153,8 +149,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | ShippingCostPLN | Decimal | NO | Cost in PLN | 25.49 | >= 0 |
 | Address | Text | NO | Delivery address | al. Piłsudskiego 12/5 | Full address |
 
-
-## 🎯 Table: Targets (Supporting)
+## Table: Targets (Supporting)
 
 **Description:** Monthly sales targets by salesperson.
 
@@ -171,8 +166,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Target | Decimal | NO | Monthly target | 58637 | PLN; > 0 |
 | Note | Text | YES | Additional notes | varies | Optional |
 
-
-## 📏 Data Quality Standards
+## Data Quality Standards
 
 ### Text Fields
 - **Trimming:** All leading/trailing spaces removed
@@ -194,7 +188,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - **Values:** true/false only
 - **Required:** No nulls allowed
 
-## 🔧 Calculated Fields
+## Calculated Fields
 
 | Field | Table | Formula | Purpose |
 |-------|-------|---------|---------|
@@ -202,7 +196,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | MonthNumber | Targets | Month name → Number | Date joins |
 
 
-## 📊 Data Quality Metrics
+## Data Quality Metrics
 
 | Metric | Result |
 |--------|--------|
