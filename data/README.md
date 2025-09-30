@@ -5,19 +5,18 @@
 This directory contains synthetic sales data demonstrating real-world ETL challenges and their solutions.
 
 ## Directory Structure
-
 ```
 data/
-├── sample/                      # Sample datasets for demonstration
-│   ├── sample_data_raw.xlsx    # Original data with quality issues (25 rows)
-│   ├── sample_data_clean.xlsx  # Cleaned data after ETL (25 rows)
+├── sample/                     
+│   ├── sample_data_raw.xlsx          # Original messy data
+│   ├── sample_data_clean.xlsx        # Transformed clean data
 │   └── sample_data_documentation.md  # Detailed issue documentation
-└── README.md                    # This file
+└── README.md                         # This file
 ```
 
 ## Dataset Information
 
-### ⚠️ Important Notice
+### Important Notice
 **This project uses 100% synthetic data generated for demonstration purposes.**
 
 All names, addresses, email addresses, and company information are fictitious. Any resemblance to real persons, companies, or actual transactions is purely coincidental.
