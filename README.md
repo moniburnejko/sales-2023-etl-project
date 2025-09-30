@@ -21,7 +21,7 @@ Sales operations generated data across 8 separate sources with critical quality 
 | **Integration Complexity** | Multiple records per OrderID causing merge complications |
 | **Partial Coverage** | Country-specific data requiring careful relational design |
 
-## 🛠 Technical Solution
+## Technical Solution
 
 ### Tech Stack
 - **Microsoft Excel** - Data storage and final output
@@ -49,7 +49,7 @@ Created **7 reusable M language functions** for robust data transformation:
 8 Raw Files → Power Query → Custom Functions → 50+ Transformations → Validation → Star Schema
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 sales-2023-etl-project/
@@ -67,7 +67,7 @@ sales-2023-etl-project/
     └── transformations/        # Before/after screenshots
 ```
 
-## 🎯 Results & Impact
+## Results & Impact
 
 ### Data Quality Improvements
 
@@ -81,12 +81,12 @@ sales-2023-etl-project/
 
 ### Business Value Delivered
 
-✅ **Unified View** - Consolidated fragmented data for complete 2023 visibility  
-✅ **Analysis Ready** - Clean data model enabling immediate BI implementation  
-✅ **Scalable Solution** - Reusable functions for future data ingestion  
-✅ **Time Savings** - Automated cleaning replacing manual work  
+**Unified View** - Consolidated fragmented data for complete 2023 visibility  
+**Analysis Ready** - Clean data model enabling immediate BI implementation  
+**Scalable Solution** - Reusable functions for future data ingestion  
+**Time Savings** - Automated cleaning replacing manual work  
 
-## 📸 Transformation Examples
+## Transformation Examples
 
 ### Before & After Snapshots
 
@@ -112,7 +112,7 @@ After:  Carrier: DPD, DeliveryType: Express, EstimatedDeliveryDays: 2-4
 ```
 </details>
 
-## 🚀 How to Use This Project
+## How to Use This Project
 
 ### Prerequisites
 - Microsoft Excel 2016+ with Power Query
@@ -134,7 +134,7 @@ After:  Carrier: DPD, DeliveryType: Express, EstimatedDeliveryDays: 2-4
    - Import custom functions from `/queries/power_query_functions.m`
    - Follow the pipeline guide in `/documentation/etl_pipeline.md`
 
-## 📚 Documentation
+## Documentation
 
 | Document | Description |
 |----------|-------------|
@@ -143,7 +143,7 @@ After:  Carrier: DPD, DeliveryType: Express, EstimatedDeliveryDays: 2-4
 | [ETL Pipeline](documentation/etl_pipeline.md) | Step-by-step transformation guide |
 | [Sample Data Guide](data/sample/sample_data_documentation.md) | Examples of issues and solutions |
 
-## 💡 Key Learnings
+## Key Learnings
 
 This project reinforced several critical data engineering principles:
 
@@ -152,14 +152,14 @@ This project reinforced several critical data engineering principles:
 3. **Relational Design** - Proper table separation prevents null proliferation
 4. **Documentation** - Clear documentation ensures reproducibility
 
-## 🔗 Connect
+## Connect
 
 **Monika Burnejko** - Data Analyst  
 📧 [monikaburnejko@gmail.com](mailto:monikaburnejko@gmail.com)  
 💼 [LinkedIn](https://www.linkedin.com/in/monika-burnejko-9301a1357)  
 🌐 [Portfolio](https://www.notion.so/monikaburnejko/Data-Analytics-Portfolio-2761bac67ca9807298aee038976f0085)
 
-## 📝 License
+## License
 
 This project uses synthetic data created for portfolio demonstration. All data is fictional and safe for public sharing.
 
