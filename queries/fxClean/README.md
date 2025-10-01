@@ -57,13 +57,12 @@ in
 - After: 100% clean data in < 2 seconds
 - Eliminated: ~30 minutes of manual cleaning per data refresh
 
-#### Best Practices
-**Do:**
+## Best Practices
+#### Do:**
 - Apply fxClean as your first transformation step
 - Use on all external data sources (Excel, CSV, databases)
 - Combine with type-specific functions (fxDate, fxNumber) afterward
-
-**Don't:**
+#### Don't:**
 - Apply after already cleaning data (redundant processing)
 - Skip this step when data quality is critical
 
