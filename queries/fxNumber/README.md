@@ -84,8 +84,7 @@ in
 - **Use on international data** with mixed formats
 - **Combine with type casting** to ensure downstream compatibility
 - **Test with sample data** containing edge cases first
-
-#### Don't:**
+#### Don't:
 - Use on columns that are **already typed as number** (unnecessary overhead)
 - Apply to **text fields** that shouldn't be numbers (wasteful)
 - Expect to parse **dates or percentages as calculations** (use fxDate or custom logic)
