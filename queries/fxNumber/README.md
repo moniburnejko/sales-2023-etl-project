@@ -74,7 +74,7 @@ in
 - **Type errors** broke SalesAmount calculations
 - **Currency symbols** caused calculation failures
 
-### After fxNumber:
+**After fxNumber:**
 - **100% successful parsing** across all formats
 - **Automatic handling** - zero manual intervention
 - **<1 second** to process 850+ numeric fields
