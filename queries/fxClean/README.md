@@ -78,16 +78,16 @@ This function is designed to work seamlessly with the other fxLibrary functions.
 
 ### Best Practices
 **Do:**
-Apply fxClean as your first transformation step
-Use on all external data sources (Excel, CSV, databases)
-Combine with type-specific functions (fxDate, fxNumber) afterward
+- Apply fxClean as your first transformation step
+- Use on all external data sources (Excel, CSV, databases)
+- Combine with type-specific functions (fxDate, fxNumber) afterward
 
 **Don't:**
-Apply after already cleaning data (redundant processing)
-Skip this step when data quality is critical
+- Apply after already cleaning data (redundant processing)
+- Skip this step when data quality is critical
 
 ## Error Handling
-The function handles:
+**The function handles:**
 - Mixed data types in columns (preserves non-text values)
 - Null values (treats as empty)
 - Single-column tables (no errors)
