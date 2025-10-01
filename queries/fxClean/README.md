@@ -76,7 +76,7 @@ in
 ## Integration with Other Functions
 This function is designed to work seamlessly with the other fxLibrary functions.
 
-### Best Practices
+#### Best Practices
 **Do:**
 - Apply fxClean as your first transformation step
 - Use on all external data sources (Excel, CSV, databases)
