@@ -234,19 +234,30 @@ let
   renamedCols = Table.RenameColumns(source, {{"Order_ID", "OrderID"}, {"Date", "OrderDate"}, {"CustID", "CustomerID"}, {"SKU", "ProductSKU"}, {"Quantity", "Qty"}, {"Price", "UnitPrice"}, {"Curr", "Currency"}, {"Country_Name", "Country"},  {"Rep", "Salesperson"}}),
   
   // Step 2: Apply date standardization
-  standardizeDates = Table.TransformColumns(renamedCols, {"OrderDate", each fxDate(_)}),
+  standardizeDates = Table.TransformColumns(renamedCols, {"OrderDate", each fxDate(_), type date}),
   
   // Step 3: Standardize country names
-  standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_)}),
+  standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_), type text}),
 
   // Step 4: Validate numbers
-  validateNumbers = Table.TransformColumns(standardizeCountries, {{"Qty", each fxNumber(_), type number}, {"UnitPrice", each fxNumber(_), type number}}),
+  validateNumbers = Table.TransformColumns(standardizeCountries,
+    {{"Qty", each fxNumber(_), Int64.Type}, 
+    {"UnitPrice", each fxNumber(_), type number}}),
 
-  // Step 5: Change column type
-  changeType = Table.TransformColumnTypes(validateNumbers, {{"OrderID", type text}, {"OrderDate", type date}, {"CustomerID", type text}, {"ProductSKU", type text}, {"Qty", Int64.Type}, {"Currency", type text}, {"Country", type text}, {"City", type text}, {"Salesperson", type text}, {"Channel", type text}}),
+  // Step 5: Standardize text 
+  standardizeText = Table.TransformColumns(validateNumbers,
+  {{"OrderID", each fxText(_), type text},
+  {"CustomerID", each fxText(_), type text},
+  {"ProductSKU", each fxText(_), type text},
+  {"City", each fxText(_), type text},
+  {"Salesperson", each fxText(_), type text}, 
+  {"Channel", each fxText(_), type text}}),
   
-  // Step 4: Remove duplicates
-  removeDuplicates = Table.Distinct(changeType, {"OrderID"}) 
+  // Step 6: Change column type
+  changeType = Table.TransformColumnTypes(standardizeText, {"Currency", type text}),
+  
+  // Step 7: Remove duplicates
+  removeDuplicates = Table.Distinct(changeType, {"OrderID"})  
 in
   removeDuplicates
 ```
@@ -257,31 +268,42 @@ let
   source = fxClean(Sales_2023_Q1),
 
   // Step 1: Apply date standardization
-  standardizeDates = Table.TransformColumns(source, {"OrderDate", each fxDate(_)}),
+  standardizeDates = Table.TransformColumns(source, {"OrderDate", each fxDate(_), type date}),
   
   // Step 2: Standardize country names
-  standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_)}),
+  standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_), type text}),
 
   // Step 3: Validate numbers
-  validateNumbers = Table.TransformColumns(standardizeCountries, {{"Qty", each fxNumber(_), type number}, {"UnitPrice", each fxNumber(_), type number}}),
+  validateNumbers = Table.TransformColumns(standardizeCountries,
+    {{"Qty", each fxNumber(_), Int64.Type}, 
+    {"UnitPrice", each fxNumber(_), type number}}),
 
-  // Step 4: Change column type
-  changeType = Table.TransformColumnTypes(validateNumbers, {{"OrderID", type text}, {"OrderDate", type date}, {"CustomerID", type text}, {"ProductSKU", type text}, {"Qty", Int64.Type}, {"Currency", type text}, {"Country", type text}, {"City", type text}, {"Salesperson", type text}, {"Channel", type text}}),
+  // Step 4: Standardize text 
+  standardizeText = Table.TransformColumns(validateNumbers,
+  {{"OrderID", each fxText(_), type text},
+  {"CustomerID", each fxText(_), type text},
+  {"ProductSKU", each fxText(_), type text},
+  {"City", each fxText(_), type text},
+  {"Salesperson", each fxText(_), type text}, 
+  {"Channel", each fxText(_), type text}}),
+
+  // Step 5: Change column type
+  changeType = Table.TransformColumnTypes(standardizeText, {"Currency", type text}),
   
-  // Step 4: Remove duplicates
+  // Step 6: Remove duplicates
   removeDuplicates = Table.Distinct(changeType, {"OrderID"}),
   
-  // Step 5: Append Q1 and Q2
+  // Step 7: Append Q1 and Q2
   appendQuery = Table.Combine({removeDuplicates, Sales_Q2}),
 
-  // Step 6: Calculate SalesAmount
+  // Step 8: Calculate SalesAmount
   addSalesAmount = Table.AddColumn(appendQuery, "SalesAmount",
         each [Qty] * [UnitPrice], type number),
 
-  // Step 7: Change column order 
+  // Step 9: Change column order 
   changeOrder = Table.ReorderColumns(addSalesAmount, {"OrderID", "OrderDate", "CustomerID", "ProductSKU", "Qty", "UnitPrice", "SalesAmount", "Currency", "Country", "City", "Salesperson", "Channel"})
 in
-    changeOrder
+  changeOrder
 ```
 
 Results: 850 clean transaction records
@@ -471,11 +493,11 @@ let
   mergedWithProducts = Table.NestedJoin(
     changeOrder, {"ProductSKU"},
     Products, {"ProductSKU"},
-    "ProductDetails", JoinKind.LeftOuter),
+    "Products", JoinKind.LeftOuter),
 
   // Step 2: Expand Products columns
   expandedProducts = Table.ExpandTableColumn(
-    mergedWithProducts, "ProductDetails",
+    mergedWithProducts, "Products",
     {"ProductName", "Category", "Subcategory", "UnitCost"},
     {"ProductName", "Category", "Subcategory", "UnitCost"}),
   
@@ -496,7 +518,7 @@ let
 
   // Step 6: Change column order
   reorderedCols = Table.ReorderColumns(renamedCols, {"OrderID", "OrderDate", "CustomerID", "CustomerName", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment", "ProductSKU", "ProductName", "Category", "Subcategory", "UnitCost", "Qty", "UnitPrice", "SalesAmount", "Currency", "OrderCountry", "OrderCity", "Salesperson", "Channel"})
-in 
+in
   reorderedCols
 ```
 
