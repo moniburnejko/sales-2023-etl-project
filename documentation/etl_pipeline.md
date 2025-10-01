@@ -234,7 +234,7 @@ let
   renamedCols = Table.RenameColumns(source, {{"Order_ID", "OrderID"}, {"Date", "OrderDate"}, {"CustID", "CustomerID"}, {"SKU", "ProductSKU"}, {"Quantity", "Qty"}, {"Price", "UnitPrice"}, {"Curr", "Currency"}, {"Country_Name", "Country"},  {"Rep", "Salesperson"}}),
   
   // Step 2: Apply date standardization
-  standardizeDates = Table.TransformColumns(renamedCols, {{"OrderDate", each fxDate(_)}}),
+  standardizeDates = Table.TransformColumns(renamedCols, {"OrderDate", each fxDate(_)}),
   
   // Step 3: Standardize country names
   standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_)}),
@@ -257,7 +257,7 @@ let
   source = fxClean(Sales_2023_Q1),
 
   // Step 1: Apply date standardization
-  standardizeDates = Table.TransformColumns(source, {{"OrderDate", each fxDate(_)}}),
+  standardizeDates = Table.TransformColumns(source, {"OrderDate", each fxDate(_)}),
   
   // Step 2: Standardize country names
   standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_)}),
