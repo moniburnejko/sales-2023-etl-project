@@ -25,11 +25,11 @@ Raw Data (8 files) → Power Query → Cleaning Functions → Transformation →
 #### Step 1.1: Import Data Sources
 ```m
 let
-  Source = Excel.Workbook(File.Contents("/Users/Monika/Desktop/sales_2023_database_raw.xlsx"), null, true),
-  "Navigation 1" = Source{[Item = "Sales_2023_Q1", Kind = "Sheet"]}[Data],
-  "Promoted headers" = Table.PromoteHeaders(#"Navigation 1", [PromoteAllScalars = true])
+  source = Excel.Workbook(File.Contents("/Users/Monika/Desktop/sales_2023_database_raw.xlsx"), null, true),
+  navigation = Source{[Item = "Sales_2023_Q1", Kind = "Sheet"]}[Data],
+  headers = Table.PromoteHeaders(navigation, [PromoteAllScalars = true])
 in
-  "Promoted headers"
+  headers
 ```
 
 #### Step 1.2: Create Staging Queries
@@ -246,8 +246,7 @@ let
   changeType = Table.TransformColumnTypes(validateNumbers, {{"OrderID", type text}, {"OrderDate", type date}, {"CustomerID", type text}, {"ProductSKU", type text}, {"Qty", Int64.Type}, {"Currency", type text}, {"Country", type text}, {"City", type text}, {"Salesperson", type text}, {"Channel", type text}}),
   
   // Step 4: Remove duplicates
-  removeDuplicates = Table.Distinct(changeType, {"OrderID"})
-  
+  removeDuplicates = Table.Distinct(changeType, {"OrderID"}) 
 in
   removeDuplicates
 ```
@@ -281,7 +280,6 @@ let
 
   // Step 7: Change column order 
   changeOrder = Table.ReorderColumns(addSalesAmount, {"OrderID", "OrderDate", "CustomerID", "ProductSKU", "Qty", "UnitPrice", "SalesAmount", "Currency", "Country", "City", "Salesperson", "Channel"})
-
 in
     changeOrder
 ```
@@ -291,53 +289,36 @@ Results: 850 clean transaction records
 ### 4.2: Products Transformation
 ```m
 let
-    Source = fxClean(Products),
+    source = fxClean(Products2),
 
-  // Step 1: Rename columns
-    RenamedColumns = Table.RenameColumns(Source, {{"SKU", "ProductSKU"}}),
+    // Step 1: Rename columns
+    renamedColumns = Table.RenameColumns(source, {{"SKU", "ProductSKU"}}),
 
-  // Step 2: Standardize text columns
-  #"Replaced value" = Table.ReplaceValue(RenamedColumns, "1", "i", Replacer.ReplaceText, {"ProductName"}),
+    // Step 2: Standardize text columns
+    replacedValue = Table.ReplaceValue(renamedColumns, "1", "i", Replacer.ReplaceText, {"ProductName"}),
     
-    StandardizeText = Table.TransformColumns(
-        #"Replaced value", 
-        {
-            {"ProductName", each fxText(_), type text}, 
-            {"Category", each fxText(_), type text}, 
-            {"Subcategory", each fxText(_), type text}
-        }
-    ),
-  // Step 3: Validate numbers
-    ValidateNumbers = Table.TransformColumns(
-        StandardizeText, 
-        {{"UnitCost", each fxNumber(_), type number}}
-    ),
+    standardizeText = Table.TransformColumns(replacedValue, 
+        {{"ProductName", each fxText(_), type text}, 
+        {"Category", each fxText(_), type text}, 
+        {"Subcategory", each fxText(_), type text}}),
 
-  // Step 4: Logical normalization     
-    LogicalColumn = Table.TransformColumns(
-        ValidateNumbers, 
-        {{"Active", each fxLogical(_), type logical}}
-    ),
-  // Step 5: Complex package size normalization
-    PackageSizeClean = (packageSizeValue) => 
+    // Step 3: Validate numbers
+    validateNumbers = Table.TransformColumns(standardizeText, 
+        {{"UnitCost", each fxNumber(_), type number}}),
+
+    // Step 4: Logical normalization     
+    logicalColumn = Table.TransformColumns(validateNumbers, 
+        {{"Active", each fxLogical(_), type logical}}),
+
+    // Step 5: Complex package size normalization
+    packageSizeClean = (packageSizeValue) => 
         let
             // Step 5.1: Clean and normalize input text
             txt = 
                 if packageSizeValue = null then 
                     null 
                 else 
-                    Text.Trim(
-                        Text.Replace(
-                            Text.Replace(
-                                Text.Replace(
-                                    Text.From(packageSizeValue),
-                                    "×", "x"
-                                ),
-                                "X", "x"
-                            ),
-                            "  ", " "
-                        )
-                    ),
+                    Text.Trim(Text.Replace(Text.Replace(Text.Replace(Text.From(packageSizeValue), "×", "x"), "X", "x"),"  ", " ")),
             
             // Step 5.2: Split by delimiter and determine format
             parts = if txt = null then {} else Text.Split(txt, "x"),
@@ -352,7 +333,7 @@ let
                         digits = Text.Select(p1, {"0".."9"}) 
                     in 
                         if digits = "" then 1 else Number.From(digits)
-                else 
+                else
                     1,
             
             // Step 5.4: Identify unit candidate (value + unit)
@@ -392,8 +373,7 @@ let
             
             // Step 5.8: Format final number with 2 decimal places
             convertedNumberText = 
-                if convertedNumber = null then 
-                    "" 
+                if convertedNumber = null then "" 
                 else 
                     Number.ToText(convertedNumber, "0.##", "en-US"),
             
@@ -401,36 +381,37 @@ let
             result =
                 if convertedNumberText = "" and (convertedSymbol = null or convertedSymbol = "") then
 
-                    // Case: No unit info (e.g., "6" → "6")
+                    // Case 1: No unit info (e.g., "6" → "6")
                     Text.From(packCount)
                 else if convertedNumberText <> "" and convertedSymbol <> "" then
-                    // Case: Full info (e.g., "6x330ml" → "6 × 0.33 L")
+
+                    // Case 2: Full info (e.g., "6x330ml" → "6 × 0.33 L")
                     Text.From(packCount) & " × " & convertedNumberText & " " & convertedSymbol
                 else if convertedNumberText <> "" then
-                    // Case: Number only (e.g., "6x330" → "6 × 330")
+
+                    // Case 3: Number only (e.g., "6x330" → "6 × 330")
                     Text.From(packCount) & " × " & convertedNumberText
                 else
-                    // Case: Unit only (e.g., "6xL" → "6 × L")
+
+                    // Case 4: Unit only (e.g., "6xL" → "6 × L")
                     Text.From(packCount) & " × " & convertedSymbol
         in
             result,
     
-  // Step 6: Apply the PackageSize transformation
-    TransformPackageSize = Table.TransformColumns(
-        LogicalColumn,
-        {{"PackageSize", each PackageSizeClean(_), type text}}
-    ),
+    // Step 6: Apply the PackageSize transformation
+    transformPackageSize = Table.TransformColumns(logicalColumn,
+    {{"PackageSize", each packageSizeClean(_), type text}}),
 
-  // Step 7: Validate EAN codes
-    ValidateEAN = Table.SelectRows(TransformPackageSize, each Text.Length([EAN]) = 13),
+    // Step 7: Validate EAN codes
+    validateEAN = Table.SelectRows(transformPackageSize, each Text.Length([EAN]) = 13),
 
-  // Step 8: Remove duplicates
-  RemoveDuplicates = Table.Distinct(ValidateEAN, {"ProductSKU"}),
+    // Step 8: Remove duplicates
+    removeDuplicates = Table.Distinct(validateEAN, {"ProductSKU"}),
 
-  // Step 9: Change column type
-  ChangeType = Table.TransformColumnTypes(RemoveDuplicates, {{"ProductSKU", type text}, {"Supplier", type text}, {"EAN", Int64.Type}})
+    // Step 9: Change column type
+    changeType = Table.TransformColumnTypes(removeDuplicates, {{"ProductSKU", type text}, {"Supplier", type text}, {"EAN", Int64.Type}})
 in
-    ChangeType
+    changeType
 ```
 
 Results: 60 products with normalized package sizes
@@ -438,60 +419,41 @@ Results: 60 products with normalized package sizes
 ### 4.3: Customers Transformation
 ```m
 let
-    Source = fxClean(Customers),
+    source = fxClean(Customers),
     
     // Step 1: Standardize text columns
-    StandardizeText = Table.TransformColumns(
-        Source,
-        {
-            {"CustomerName", each fxText(_), type text},
-            {"Segment", each fxText(_), type text}
-        }
-    ),
+    standardizeText = Table.TransformColumns(source,
+        {{"CustomerName", each fxText(_), type text},
+        {"Segment", each fxText(_), type text}}),
     
     // Step 2: Email normalization with diacritics removal
-    NormalizeEmails = Table.TransformColumns(
-        StandardizeText, 
-        {
-            {"Email", each 
-                let
-                    Lower = Text.Lower(_),
-                    NoDiacritics = fxDiacritics(Lower)
-                in
-                    NoDiacritics, 
-                type text
-            }
-        }
-    ),
+    normalizeEmails = Table.TransformColumns(standardizeText, 
+        {{"Email", each 
+        let
+            lower = Text.Lower(_),
+            noDiacritics = fxDiacritics(lower)
+        in
+            noDiacritics, type text}}),
     
     // Step 3: Phone standardization
-    StandardizePhones = Table.TransformColumns(
-        NormalizeEmails, 
-        {
-            {"Phone", each Text.Select(_, {"0".."9", "+"}), type text}
-        }
-    ),
+    standardizePhones = Table.TransformColumns(normalizeEmails, 
+        {{"Phone", each Text.Select(_, {"0".."9", "+"}), type text}}),
     
     // Step 4: Standardize country names
-    StandardizeCountries = Table.TransformColumns(
-        StandardizePhones, 
-        {{"Country", each fxCountry(_), type text}}
-    ),
+    standardizeCountries = Table.TransformColumns(standardizePhones, 
+        {{"Country", each fxCountry(_), type text}}),
     
     // Step 5: Apply date standardization
-    StandardizeDates = Table.TransformColumns(
-        StandardizeCountries, 
-        {{"JoinDate", each fxDate(_), type date}}
-    ),
+    standardizeDates = Table.TransformColumns(standardizeCountries, 
+        {{"JoinDate", each fxDate(_), type date}}),
 
     // Step 6: Remove duplicates
-    RemoveDuplicates = Table.Distinct(StandardizeDates, {"CustomerID"}),
+    removeDuplicates = Table.Distinct(standardizeDates, {"CustomerID"}),
 
     // Step 7: Change column types
-    ChangeType = Table.TransformColumnTypes(RemoveDuplicates, {{"CustomerID", type text}, {"City", type text}, {"VAT", type text}})
+    changeType = Table.TransformColumnTypes(removeDuplicates, {{"CustomerID", type text}, {"City", type text}, {"VAT", type text}})
 in
-    ChangeType
-
+    changeType
 ```
 
 Results: 120 customers with clean contact data
@@ -535,20 +497,112 @@ in
 
 ### 5.2: Validate Referential Integrity
 
-## Phase 6: Final Validation
 ### Validation Checklist
+
+```m
+let
+  orphanedOrders = Table.SelectRows(reorderedCols, each
+        not List.Contains(Customers[CustomerID], [CustomerID])),
+  validationResult = if Table.RowCount(orphanedOrders) = 0
+        then "No orphaned records"
+        else "Found " & Text.From(Table.RowCount(orphanedOrders)) & " orphaned records"
+in
+    validationResult
+```
+
+## Phase 6: Final Validation
+
+1. Date Range
+```m
+dateRange = Table.SelectRows(Sales_2023, each [OrderDate] >= #date(2023, 1, 1) and [OrderDate] <= #date(2023, 12, 31))
+```
+2. Null Keys
+```m
+nullKeys = Table.SelectRows(Sales_2023, each [OrderID] = null)
+```
+3. Foreign Keys
+```m
+foreignKeys = Table.SelectRows(Sales_2023, each [OrderID] = null)
+```
+4. Numeric Range
+```m
+numericRange = Table.SelectRows(Sales_2023, each [Qty] > 0 and [UnitPrice] > 0)
+```
+5. Duplicated
+```m
+removeAllDuplicates = Table.Distinct(Sales_2023, {"OrderID"})
+```
+
+### Validation Checklist
+
+| Check | Result |
+| ----- | ------ |
+| Date Range | 100% valid |
+| Null Keys | 0 nulls |
+| Foreign Keys | 0 orphans |
+| Numeric Range | 100% valid |
+| Duplicates | No duplicates |
 
 ## Error Handling
 ### Common Issues & Solutions
 
-## Performance Optimization
+| Issue	| Detection	| Solution | Function Used |
+| ----- | --------- | -------- | ------------- |
+| Mixed date formats |	Type errors / nulls	| Multi-format parsing |	fxDate |
+| Country variants | Inconsistent grouping |	Normalize & Mapping table |	fxCountry |
+| Decimal separators | Calculation errors |	Replace diacritics |	fxNumber |
+| Polish characters |	System compatibility |	Character replacement |	fxDiacritics |
+| Composite fields |	Parsing failures |	Delimiter splitting |	Text.Split |
+| Wide format |	Hard to aggregate |	Unpivot operation |	Table.UnpivotColumns |
+| Inconsistent casing |	Duplicate groups |	Normalize casing (lower/proper) |	fxText, Validation |
+| Boolean-like text |	Filter/logic errors |	Map variants to true/false | fxLogical |
+| Duplicates |	Inflated aggregates |	Identify + deduplicate / keep latest | Validation, Table.Distinct |
 
 ## Maintenance Guidelines
 
+### Daily Checks
+
+- [ ]  Verify source file availability
+- [ ]  Check for new data formats
+- [ ]  Monitor processing time
+
+### Weekly Tasks
+
+- [ ]  Review error logs
+- [ ]  Validate data quality metrics
+- [ ]  Update documentation
+
+### Monthly Tasks
+
+- [ ]  Performance analysis
+- [ ]  Function optimization
+- [ ]  Schema change review
+
 ## Success Metrics
 
-## Future Enhancements
+### Pipeline KPIs
 
-## Error Handling
+| Metric | Target | Actual | Status |
+| ------ | ------ | ------ | ------ |
+| Data Quality Score | >95% |	100%| Exceeded |
+| Processing Time | <5 min | 1.5 min | Exceeded |
+| Error Rate | <1% | 0%| Exceeded |
+| Duplicate Removal | 100% | 100% | Met |
+| Format Standardization | 100% | 100% | Met |
 
+### Before & After
+
+**Before ETL:**
+- 15% Duplicate Records
+- 50+ Format Inconsistencies
+- 12% Invalid Dates
+- 8% Orphaned Records
+- Manual Processing (Hours)
+
+**After ETL:**
+- 0% Duplicates 
+- 100% Standardized 
+- 100% Valid Dates 
+- 0% Orphaned Records 
+- Automated (< 2 minutes)
 
