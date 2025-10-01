@@ -55,18 +55,18 @@ in
 ```
 
 ## What It Handles
-| Format Type | Example Input | Parsed Output | Notes |
-|-------------|---------------|---------------|-------|
-Full Words (Yes)"Yes", "YES", "yes"trueCase-insensitive
-Full Words (No)"No", "NO", "no"falseCase-insensitive
-Single Letter (Y)"Y", "y"trueCommon abbreviation
-Single Letter (N)"N", "n"falseCommon abbreviation
-Boolean Text"TRUE", "True", "true"trueProgramming convention
-Boolean Text"FALSE", "False", "false"falseProgramming convention
-Numeric (1)1, "1"trueDatabase/binary format
-Numeric (0)0, "0"falseDatabase/binary format
-Null/Emptynull, ""nullPreserves missing data
-Invalid"maybe", "unknown", "2"nullGraceful handling
+| Format Type | Example Input | Parsed Output |
+|-------------|---------------|---------------|
+| Full Words (Yes) | "Yes", "YES", "yes" | true |
+| Full Words (No) | "No", "NO", "no" | false |
+| Single Letter (Y) | "Y", "y" | true |
+| Single Letter (N) | "N", "n" | false |
+| Boolean Text | "TRUE", "True", "true" | true |
+| Boolean Text | "FALSE", "False", "false" | false |
+| Numeric (1) | 1, "1" | true |
+| Numeric (0) | 0, "0" | false |
+| Null/Empty | null, "" | null |
+| Invalid | "maybe", "unknown", "2" | null |
 
 ## Real-World Impact
 ### Sales 2023 ETL Project Results
@@ -92,12 +92,11 @@ The Function Handles:
 
 ## Best Practices
 #### Do:
-Apply early in your ETL pipeline (after fxClean)
-Use on any column where boolean data might be inconsistent
-Combine with type casting to ensure proper boolean type downstream
-Filter after parsing to identify null values (invalid entries)
+- Use on any column where boolean data might be inconsistent
+- Combine with type casting to ensure proper boolean type downstream
+- Filter after parsing to identify null values (invalid entries)
 #### Don't:
-Use on columns that are already typed as logical (unnecessary)
-Apply to non-boolean fields (will return null, wasteful)
-Expect parsing of non-standard formats without testing first
-Use for multi-value logic (this is binary only: true/false)
+- Use on columns that are already typed as logical (unnecessary)
+- Apply to non-boolean fields (will return null)
+- Expect parsing of non-standard formats without testing first
+- Use for multi-value logic (this is binary only: true/false)
