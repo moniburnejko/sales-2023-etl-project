@@ -67,26 +67,25 @@ in
 
 ## Real-World Impact
 ### Sales 2023 ETL Project Results
-**Before fxNumber:**
+#### Before fxNumber
 - **3 different decimal formats** across 8 source files
 - **Manual correction** required 20 minutes per data load
 - **8% of numbers failed** to parse correctly
 - **Type errors** broke SalesAmount calculations
 - **Currency symbols** caused calculation failures
-
-**After fxNumber:**
+#### After fxNumber:
 - **100% successful parsing** across all formats
 - **Automatic handling** - zero manual intervention
 - **<1 second** to process 850+ numeric fields
 - **Reusable** across all future data loads
 
 ## Best Practices
-**Do:**
+#### Do:
 - **Use on international data** with mixed formats
 - **Combine with type casting** to ensure downstream compatibility
 - **Test with sample data** containing edge cases first
 
-**Don't:**
+#### Don't:**
 - Use on columns that are **already typed as number** (unnecessary overhead)
 - Apply to **text fields** that shouldn't be numbers (wasteful)
 - Expect to parse **dates or percentages as calculations** (use fxDate or custom logic)
