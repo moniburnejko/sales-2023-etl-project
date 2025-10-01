@@ -419,11 +419,13 @@ Results: 60 products with normalized package sizes
 ### 4.3: Customers Transformation
 ```m
 let
-    source = fxClean(Customers),
+    source = fxClean(Customers2),
     
     // Step 1: Standardize text columns
     standardizeText = Table.TransformColumns(source,
-        {{"CustomerName", each fxText(_), type text},
+        {{"CustomerID", each fxText(_), type text},
+        {"CustomerName", each fxText(_), type text},
+        {"City", each fxText(_), type text},
         {"Segment", each fxText(_), type text}}),
     
     // Step 2: Email normalization with diacritics removal
@@ -447,13 +449,14 @@ let
     standardizeDates = Table.TransformColumns(standardizeCountries, 
         {{"JoinDate", each fxDate(_), type date}}),
 
-    // Step 6: Remove duplicates
-    removeDuplicates = Table.Distinct(standardizeDates, {"CustomerID"}),
+    // Step 6: Change column type
+    changeType = Table.TransformColumnTypes(standardizeDates, {"VAT", type text}),
 
-    // Step 7: Change column types
-    changeType = Table.TransformColumnTypes(removeDuplicates, {{"CustomerID", type text}, {"City", type text}, {"VAT", type text}})
+    // Step 7: Remove duplicates
+    removeDuplicates = Table.Distinct(changeType, {"CustomerID"})
+
 in
-    changeType
+    removeDuplicates
 ```
 
 Results: 120 customers with clean contact data
