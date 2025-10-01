@@ -40,7 +40,7 @@ The sample demonstrates **8 different date formats** found in the original data:
 - Q1: `OrderID`, `OrderDate`, `CustomerID`, `ProductSKU`
 - Q2: `Order_ID`, `Date`, `CustID`, `SKU`
 
-**Resolution:** Column mapping and standardization during append operation
+**Resolution:** Column mapping and standardization
 
 #### Duplicate Records
 - Sample shows duplicate `OrderID: O312146` appearing twice in Q1
@@ -228,17 +228,17 @@ The same techniques scale to the full dataset of 2,000+ records, where these iss
 let
     fxText = (txt as text) as text =>
     let
-        Allowed = 
+        allowed = 
             {"A".."Z","a".."z","0".."9"," ", "."} & 
             {"Ą","Ć","Ę","Ł","Ń","Ó","Ś","Ź","Ż","ą","ć","ę","ł","ń","ó","ś","ź","ż"},
-            
-        ToList = Text.ToList(txt),
-        Filtered = List.Select(ToList, each List.Contains(Allowed,_)),
-        Cleaned = Text.Combine(Filtered,""),
-        SingleSpace = Text.Trim(Text.Replace(Cleaned, "  ", " ")),
-        Result = Text.Proper(SingleSpace)
+        
+        toList = Text.ToList(txt),
+        filtered = List.Select(toList, each List.Contains(allowed,_)),
+        cleaned = Text.Combine(filtered,""),
+        singleSpace = Text.Trim(Text.Replace(cleaned, "  ", " ")),
+        result = Text.Proper(singleSpace)
     in
-        Result
+        result
 in
     fxText
 ```
