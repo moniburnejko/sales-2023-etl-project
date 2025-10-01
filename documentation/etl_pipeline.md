@@ -298,9 +298,11 @@ let
     replacedValue = Table.ReplaceValue(renamedColumns, "1", "i", Replacer.ReplaceText, {"ProductName"}),
     
     standardizeText = Table.TransformColumns(replacedValue, 
-        {{"ProductName", each fxText(_), type text}, 
+        {{"ProductSKU", each fxText(_), type text}, 
+        {"ProductName", each fxText(_), type text},
         {"Category", each fxText(_), type text}, 
-        {"Subcategory", each fxText(_), type text}}),
+        {"Subcategory", each fxText(_), type text},  
+        {"Supplier", each fxText(_), type text}}),
 
     // Step 3: Validate numbers
     validateNumbers = Table.TransformColumns(standardizeText, 
@@ -409,7 +411,7 @@ let
     removeDuplicates = Table.Distinct(validateEAN, {"ProductSKU"}),
 
     // Step 9: Change column type
-    changeType = Table.TransformColumnTypes(removeDuplicates, {{"ProductSKU", type text}, {"Supplier", type text}, {"EAN", Int64.Type}})
+    changeType = Table.TransformColumnTypes(removeDuplicates, {"EAN", Int64.Type})
 in
     changeType
 ```
