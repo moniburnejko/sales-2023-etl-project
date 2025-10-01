@@ -217,8 +217,9 @@ let
          else if txt="NO" or txt="N" or txt="FALSE" or txt="0" then false
          else null
   in
-      result
-in fxLogical
+    result
+in
+  fxLogical
 ```
 
 ### Phase 4: Source-Specific Transformations
@@ -478,7 +479,6 @@ let
 
     // Step 7: Remove duplicates
     removeDuplicates = Table.Distinct(changeType, {"CustomerID"})
-
 in
     removeDuplicates
 ```
