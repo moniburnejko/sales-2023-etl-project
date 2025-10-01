@@ -289,7 +289,7 @@ Results: 850 clean transaction records
 ### 4.2: Products Transformation
 ```m
 let
-    source = fxClean(Products2),
+    source = fxClean(Products),
 
     // Step 1: Rename columns
     renamedColumns = Table.RenameColumns(source, {{"SKU", "ProductSKU"}}),
@@ -421,7 +421,7 @@ Results: 60 products with normalized package sizes
 ### 4.3: Customers Transformation
 ```m
 let
-    source = fxClean(Customers2),
+    source = fxClean(Customers),
     
     // Step 1: Standardize text columns
     standardizeText = Table.TransformColumns(source,
