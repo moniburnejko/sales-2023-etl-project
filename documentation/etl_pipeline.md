@@ -485,6 +485,11 @@ in
 
 Results: 120 customers with clean contact data
 
+### 4.4: Returns Transformation
+### 4.5: Targets Transformation
+### 4.6: Fees Transformation
+### 4.7: Shipping Transformation
+
 ## Phase 5: Data Integration
 ### 5.1: Create Relationships
 ```m
