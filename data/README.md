@@ -70,7 +70,3 @@ While samples contain 25 records, the full project processed:
 - **8** separate data sources
 - **50+** unique transformation rules
 - **7** custom M functions
-
----
-
-*For detailed transformation documentation, see [sample_data_documentation.md](sample/sample_data_documentation.md)*
