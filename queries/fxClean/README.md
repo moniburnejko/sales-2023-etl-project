@@ -57,25 +57,6 @@ in
 - After: 100% clean data in < 2 seconds
 - Eliminated: ~30 minutes of manual cleaning per data refresh
 
-### Why Each Step Matters
-**1. Remove Empty Rows**
-- Problem: Excel exports often include blank rows from formatting
-- Impact: Prevents null-heavy datasets and incorrect aggregations
-- Example: Q1 sales file had 50+ empty rows that inflated record counts
-
-**2. Trim Whitespace**
-- Problem: Leading/trailing spaces break joins and lookups
-- Impact: Ensures "Poland" = "Poland" (not "Poland " or " Poland")
-- Example: Customer names with hidden spaces caused 15% failed merges
-
-**3. Standardize Column Names**
-- Problem: Spaces and special characters break M code references
-- Impact: Enables programmatic column access without errors
-- Example: Changed "Order #" to "Order_No" for consistent scripting
-
-## Integration with Other Functions
-This function is designed to work seamlessly with the other fxLibrary functions.
-
 #### Best Practices
 **Do:**
 - Apply fxClean as your first transformation step
