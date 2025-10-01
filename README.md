@@ -81,10 +81,10 @@ sales-2023-etl-project/
 
 ### Business Value Delivered
 
-**Unified View** - Consolidated fragmented data for complete 2023 visibility  
-**Analysis Ready** - Clean data model enabling immediate BI implementation  
-**Scalable Solution** - Reusable functions for future data ingestion  
-**Time Savings** - Automated cleaning replacing manual work  
+- **Unified View** - Consolidated fragmented data for complete 2023 visibility  
+- **Analysis Ready** - Clean data model enabling immediate BI implementation  
+- **Scalable Solution** - Reusable functions for future data ingestion  
+- **Time Savings** - Automated cleaning replacing manual work  
 
 ## Transformation Examples
 
