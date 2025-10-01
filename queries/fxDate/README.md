@@ -124,13 +124,12 @@ in
 
 ## Real-World Impact
 ### Sales 2023 ETL Project Results
-**Before fxDate:**
+#### Before fxDate:
 - **7 different date formats** across 8 source files
 - **Manual parsing** required 45 minutes per data load
 - **12% of dates failed** to parse, requiring manual fixes
 - **Type errors** broke downstream calculations
-
-**After fxDate:**
+#### After fxDate:
 - **100% successful parsing** across all formats
 - **Automatic handling** - zero manual intervention
 - **2 seconds** to process 850 date fields
@@ -163,19 +162,18 @@ OrderDate
 - Leading/trailing whitespace → Trims automatically  
 
 ## Best Practices
-**Do:**
+#### Do:
 - **Use on columns** with inconsistent date formats
 - **Combine with type casting** to ensure downstream compatibility
 - **Test with sample data** first to verify parsing logic
-
-**Don't:**
+#### Don't:**
 - Use on columns that are **already typed as date** (unnecessary overhead)
 - Apply to **non-date text fields** (will return null, but wasteful)
 - Expect parsing of **uncommon formats** without testing first
 - Use for **time-only fields**
 
 ## Extending the Function
-### Add Custom Formats
+#### Add Custom Formats
 ```m
 // Add support for YYYYMMDD format
 attempt7 = if attempt6 = null and Text.Length(cleanText) = 8
