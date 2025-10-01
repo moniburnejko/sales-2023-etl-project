@@ -25,7 +25,8 @@ in
 
 ## Usage
 ### Single Value Parsing
-powerquery// Test various formats
+```m
+// Test various formats
 = fxLogical("Yes")         // Returns: true
 = fxLogical("YES")         // Returns: true
 = fxLogical("Y")           // Returns: true
@@ -40,7 +41,7 @@ powerquery// Test various formats
 = fxLogical(0)             // Returns: false
 = fxLogical(null)          // Returns: null
 = fxLogical("maybe")       // Returns: null
-
+```
 ### Apply to Table Column
 ```m
 let
