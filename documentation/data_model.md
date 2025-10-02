@@ -22,7 +22,8 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | **OrderID** | Text (PK) | Unique order identifier | O312146 |
 | **OrderDate** | Date | Transaction date | 2023-03-29 |
 | **CustomerID** | Text (FK) | Customer identifier | C1112 |
-| **CustomerName** | Text | Customer full name (denormalized) | Kasia Mazur |
+| **CustomerName** | Text | Customer full name (denormalized) | Ania Dąbrowski |
+| **CustomerName_ASCII** | Text |Customer full name (ASCII) | Ania Dabrowski |
 | **Email** | Text | Customer email (denormalized) | kasia.mazur@mail.com |
 | **Phone** | Text | Customer phone (denormalized) | +420623497528 |
 | **CustomerCountry** | Text | Customer's country (denormalized) | Poland |
@@ -39,7 +40,8 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | **Currency** | Text | Original transaction currency | PLN |
 | **OrderCountry** | Text | Delivery country | Latvia |
 | **OrderCity** | Text | Delivery city | Riga |
-| **Salesperson** | Text | Sales representative | E. Dabrowska |
+| **Salesperson** | Text | Sales representative | A. Zielińska | 
+| **Salesperson_ASCII** | Text | Sales representative (ASCII) | A. Zielinska |
 | **Channel** | Text | Sales channel | Wholesale |
 
 **Key Features:**
@@ -71,7 +73,8 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | Column | Data Type | Description | Example |
 |--------|-----------|-------------|---------|
 | **CustomerID** | Text (PK) | Unique customer identifier | C1000 |
-| **CustomerName** | Text | Full customer name | Ola Lewandowski |
+| **CustomerName** | Text | Customer full name (denormalized) | Ania Dąbrowski |
+| **CustomerName_ASCII** | Text |Customer full name (ASCII) | Ania Dabrowski |
 | **Email** | Text | Email address (normalized) | ola.lewandowski@firma.pl |
 | **Phone** | Text | Phone number (standardized) | +491773955087 |
 | **Country** | Text | Customer country | Lithuania |
@@ -92,8 +95,9 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | **ReturnID** | Text (PK) | Unique return identifier | R10000 |
 | **OrderID** | Text (FK) | Reference to original order | O500099 |
 | **Reason** | Text | Return reason category | Other |
-| **Date** | Date | Return processing date | 2023-05-21 |
+| **ReturnDate** | Date | Return processing date | 2023-05-21 |
 | **Status** | Text | Current return status | Pending |
+| **IsReturnAfterOrder** | Boolean | NO | Date validation | true |
 
 #### **Fees** (6 records)
 > Fee structure for sales channels (Poland market only).
@@ -131,6 +135,7 @@ This data model follows a **star schema** design with **Sales_2023** as the cent
 | Column | Data Type | Description | Example |
 |--------|-----------|-------------|---------|
 | **Salesperson** | Text | Sales representative name | A. Zielińska |
+| **Salesperson_ASCII** | Text | Sales representative name (ASCII) | A. Zielinska |
 | **Month** | Text | Month name | Jan |
 | **MonthNumber** | Integer | Numeric month (1-12) | 1 |
 | **Target** | Decimal | Monthly sales target | 58637 |
