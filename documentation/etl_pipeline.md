@@ -1,4 +1,4 @@
-v# ETL Pipeline Documentation
+# ETL Pipeline Documentation
 
 ## Overview
 
