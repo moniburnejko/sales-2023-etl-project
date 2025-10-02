@@ -64,7 +64,7 @@ sales-2023-etl-project/
 ├── 📂 queries/
 │   └── power_query_functions.m # Reusable M code functions
 └── 📂 images/
-    └── transformations/        # Before/after screenshots
+    └── 📂 transformations/        # Before/after screenshots
 ```
 
 ## Results & Impact
