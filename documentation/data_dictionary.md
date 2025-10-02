@@ -44,8 +44,8 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Currency | Text | NO | Transaction currency | PLN | ISO codes |
 | OrderCountry | Text | NO | Delivery country | Latvia | May differ from CustomerCountry |
 | OrderCity | Text | NO | Delivery city | Riga | May differ from CustomerCity |
-| Salesperson | Text | NO | Sales representative | A. Zielińska | Format: F. LastName |
-| Salesperson_ASCII | Text | NO | Sales representative (without diacritics) | A. Zielinska | ASCII |
+| Salesperson | Text | YES | Sales representative | A. Zielińska | Format: F. LastName |
+| Salesperson_ASCII | Text | YES | Sales representative (without diacritics) | A. Zielinska | ASCII |
 | Channel | Text | NO | Sales channel | Wholesale | Wholesale/Online/Retail |
 
 **Notes:**
@@ -71,7 +71,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Subcategory | Text | NO | Subcategory | Coffee | ~30 subcategories |
 | UnitCost | Decimal | NO | Cost per unit | 34.48 | PLN; > 0 |
 | Active | Boolean | NO | Availability status | false | true/false |
-| Supplier | Text | YES | Supplier name | Baltic Co. | Can be null |
+| Supplier | Text | NO | Supplier name | Baltic Co. | ~10 suppliers |
 | PackageSize | Text | NO | Standardized format | 1 × 1 kg | Format: N × X.XX Unit |
 | EAN | Text | NO | Barcode | 130201276659 | 13 digits |
 
