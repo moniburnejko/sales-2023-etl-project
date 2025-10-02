@@ -116,7 +116,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Reason | Text | NO | Return reason | Other | Standardized |
 | ReturnDate | Date | NO | Return date | 2023-05-21 | Valid date |
 | Status | Text | NO | Return status | Pending | Pending/Approved/Rejected |
-| IsReturnAfterOrder | Boolean | NO | Return status | true | >= OrderDate |
+| IsReturnAfterOrder | Boolean | NO | Date validation | true | >= OrderDate |
 
 ## Table: Fees (Supporting)
 
