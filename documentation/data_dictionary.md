@@ -26,7 +26,8 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | **OrderID** | Text | NO | Unique order identifier | O312146 | PK; Format: O######; Must be unique |
 | **OrderDate** | Date | NO | Transaction date | 2023-03-29 | Valid date in 2023 |
 | **CustomerID** | Text | NO | Customer identifier | C1112 | FK to Customers; Format: C#### |
-| CustomerName | Text | NO | Customer full name (denorm.) | Kasia Mazur | Proper case |
+| CustomerName | Text | NO | Customer full name (denorm.) | Ania Dąbrowski| Proper case |
+| CustomerName_ASCII | Text | NO | Customer full name (without diacritics) | Ania Dabrowski | ASCII |
 | Email | Text | NO | Customer email (denorm.) | kasia.mazur@mail.com | Lowercase; ASCII only |
 | Phone | Text | NO | Customer phone (denorm.) | +420623497528 | No spaces/dashes |
 | CustomerCountry | Text | NO | Customer's country (denorm.) | Poland | Standardized name |
@@ -43,7 +44,8 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Currency | Text | NO | Transaction currency | PLN | ISO codes |
 | OrderCountry | Text | NO | Delivery country | Latvia | May differ from CustomerCountry |
 | OrderCity | Text | NO | Delivery city | Riga | May differ from CustomerCity |
-| Salesperson | Text | NO | Sales representative | E. Dabrowska | Format: F. LastName |
+| Salesperson | Text | NO | Sales representative | A. Zielińska | Format: F. LastName |
+| Salesperson_ASCII | Text | NO | Sales representative (without diacritics) | A. Zielinska | ASCII |
 | Channel | Text | NO | Sales channel | Wholesale | Wholesale/Online/Retail |
 
 **Notes:**
@@ -86,7 +88,8 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Column Name | Data Type | Nullable | Description | Example | Business Rules |
 |-------------|-----------|:--------:|-------------|---------|----------------|
 | **CustomerID** | Text | NO | Unique customer ID | C1000 | PK; Format: C#### |
-| CustomerName | Text | NO | Full name | Ola Lewandowski | Proper case |
+| CustomerName | Text | NO | Customer full name (denorm.) | Ania Dąbrowski| Proper case |
+| CustomerName_ASCII | Text | NO | Customer full name (without diacritics) | Ania Dabrowski | ASCII |
 | Email | Text | NO | Email address | ola.lew@firma.pl | Lowercase; ASCII |
 | Phone | Text | NO | Phone number | +491773955087 | International format |
 | Country | Text | NO | Customer country | Lithuania | Standardized |
@@ -111,8 +114,9 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | **ReturnID** | Text | NO | Unique return ID | R10000 | PK; Format: R##### |
 | OrderID | Text | NO | Original order ref | O500099 | FK to Sales_2023 |
 | Reason | Text | NO | Return reason | Other | Standardized |
-| Date | Date | NO | Return date | 2023-05-21 | >= OrderDate |
+| ReturnDate | Date | NO | Return date | 2023-05-21 | Valid date |
 | Status | Text | NO | Return status | Pending | Pending/Approved/Rejected |
+| IsReturnAfterOrder | Boolean | NO | Return status | true | >= OrderDate |
 
 ## Table: Fees (Supporting)
 
@@ -145,7 +149,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | **OrderID** | Text | NO | Order reference | O881975 | PK; FK to Sales_2023 |
 | Carrier | Text | NO | Shipping provider | DHL | DHL/DPD/InPost/GLS |
 | DeliveryType | Text | NO | Service level | Express | Express/Standard/Economy |
-| EstimatedDelivery | Text | NO | Timeframe | 2-4d | Format: #-#d |
+| EstimatedDeliveryDays | Text | NO | Timeframe | 2-4 | Format: #-# |
 | ShippingCostPLN | Decimal | NO | Cost in PLN | 25.49 | >= 0 |
 | Address | Text | NO | Delivery address | al. Piłsudskiego 12/5 | Full address |
 
@@ -161,6 +165,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 | Column Name | Data Type | Nullable | Description | Example | Business Rules |
 |-------------|-----------|:--------:|-------------|---------|----------------|
 | Salesperson | Text | NO | Sales rep name | A. Zielińska | Format: F. LastName |
+| Salesperson_ASCII | Text | NO | Sales rep name (without diacritics) | A. Zielinska | ASCII |
 | Month | Text | NO | Month name | Jan | Three-letter abbr. |
 | MonthNumber | Integer | NO | Numeric month | 1 | 1-12 |
 | Target | Decimal | NO | Monthly target | 58637 | PLN; > 0 |
@@ -172,7 +177,7 @@ This data dictionary provides comprehensive documentation of all tables, fields,
 - **Trimming:** All leading/trailing spaces removed
 - **Casing:** Proper case for names, lowercase for emails
 - **Special Characters:** Removed from system fields
-- **Diacritics:** Removed from emails for compatibility
+- **Diacritics:** Removed from emails and names for compatibility
 
 ### Numeric Fields
 - **Decimal Separator:** Period (.)
