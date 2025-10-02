@@ -521,9 +521,12 @@ let
 
     // Step 6: Validate if ReturndDate if after OrderDate
     dateCheck = Table.AddColumn(expanded, "IsReturnAfterOrder",
-        each if [ReturnDate] > [OrderDate] then true else false, type logical)
+        each if [ReturnDate] > [OrderDate] then true else false, type logical),
+
+    // Step 7: Remove OrderDate column 
+    removeCol = Table.RemoveColumns(dateCheck, {"OrderDate"})
 in
-    dateCheck
+    removeCol
 ```
 
 ### 4.5: Targets Transformation
