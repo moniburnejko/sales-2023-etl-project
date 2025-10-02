@@ -157,8 +157,7 @@ let
             germany = "Germany", deutschland = "Germany", de = "Germany",
             france = "France", fr = "France",
             czechia = "Czechia", czech republic = "Czechia", cz = "Czechia",
-            lithuania = "Lithuania", lt = "Lithuania"
-        ],
+            lithuania = "Lithuania", lt = "Lithuania"],
         lower = Text.Lower(Text.Trim(countryValue)),
         standardized = Record.FieldOrDefault(countryMap, lower, Text.Proper(countryValue))
     in
@@ -195,8 +194,7 @@ fxDiacritics = (x as nullable text) as nullable text =>
       t = if x=null then null else x,
      pairs = {
          {"ą","a"}, {"ć","c"}, {"ę","e"}, {"ł","l"}, {"ń","n"}, {"ó","o"}, {"ś","s"}, {"ż","z"}, {"ź","z"},
-          {"Ą","A"}, {"Ć","C"}, {"Ę","E"}, {"Ł","L"}, {"Ń","N"}, {"Ó","O"}, {"Ś","S"}, {"Ż","Z"}, {"Ź","Z"}
-     },
+          {"Ą","A"}, {"Ć","C"}, {"Ę","E"}, {"Ł","L"}, {"Ń","N"}, {"Ó","O"}, {"Ś","S"}, {"Ż","Z"}, {"Ź","Z"}},
      result = if t=null then null else
             List.Accumulate(pairs, t, (state, p) => Text.Replace(state, p{0}, p{1}))
   in
@@ -309,44 +307,8 @@ let
   // Step 9: Calculate SalesAmount
   addSalesAmount = Table.AddColumn(appendQuery, "SalesAmount",
         each [Qty] * [UnitPrice], type number),
-
-  // Step 11: Merge with Products
-  mergedWithProducts = Table.NestedJoin(
-    addSalesAmount, {"ProductSKU"},
-    Products, {"ProductSKU"},
-    "Products", JoinKind.LeftOuter),
-
-  // Step 12: Expand Products columns
-  expandedProducts = Table.ExpandTableColumn(
-    mergedWithProducts, "Products",
-    {"ProductName", "Category", "Subcategory", "UnitCost"},
-    {"ProductName", "Category", "Subcategory", "UnitCost"}),
-  
-  // Step 13: Merge with Customers
-  mergedWithCustomers = Table.NestedJoin(
-    expandedProducts, {"CustomerID"},
-    Customers, {"CustomerID"},
-    "Customers", JoinKind.LeftOuter),
-
-  // Step 14: Expand Customers columns
-  expandedCustomers = Table.ExpandTableColumn(
-    mergedWithCustomers, "Customers",
-    {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "Country", "City", "Segment"},
-    {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment"}),
-
-  // Step 15: Rename columns
-  renamedCols = Table.RenameColumns(expandedCustomers, {{"Country", "OrderCountry"}, {"City", "OrderCity"}}),
-
-  // Step 16: Change column order
-  reorderedCols = Table.ReorderColumns(renamedCols, {"OrderID", "OrderDate", "CustomerID", "CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment", "ProductSKU", "ProductName", "Category", "Subcategory", "UnitCost", "Qty", "UnitPrice", "SalesAmount", "Currency", "OrderCountry", "OrderCity", "Salesperson", "Salesperson_ASCII", "Channel"}),
-
-  // Step 17: Validation
-  dateRange = Table.SelectRows(reorderedCols, each [OrderDate] >= #date(2023, 1, 1) and [OrderDate] <= #date(2023, 12, 31)),
-  numericRange = Table.SelectRows(dateRange, each [Qty] > 0 and [UnitPrice] > 0),
-  removeAllDuplicates = Table.Distinct(numericRange, {"OrderID"})
-
-in 
-  removeAllDuplicates
+in
+  addSalesAmount
 ```
 
 Results: 850 clean transaction records
@@ -354,7 +316,7 @@ Results: 850 clean transaction records
 ### 4.2: Products Transformation
 ```m
 let
-    source = fxClean(Products),
+    source = fxClean(Products2),
 
     // Step 1: Rename columns
     renamedColumns = Table.RenameColumns(source, {{"SKU", "ProductSKU"}}),
@@ -381,11 +343,8 @@ let
     packageSizeClean = (packageSizeValue) => 
         let
             // Step 5.1: Clean and normalize input text
-            txt = 
-                if packageSizeValue = null then 
-                    null 
-                else 
-                    Text.Trim(Text.Replace(Text.Replace(Text.Replace(Text.From(packageSizeValue), "×", "x"), "X", "x"),"  ", " ")),
+            txt = if packageSizeValue = null then null 
+                else Text.Trim(Text.Replace(Text.Replace(Text.Replace(Text.From(packageSizeValue), "×", "x"), "X", "x"),"  ", " ")),
             
             // Step 5.2: Split by delimiter and determine format
             parts = if txt = null then {} else Text.Split(txt, "x"),
@@ -399,9 +358,7 @@ let
                     let 
                         digits = Text.Select(p1, {"0".."9"}) 
                     in 
-                        if digits = "" then 1 else Number.From(digits)
-                else
-                    1,
+                        if digits = "" then 1 else Number.From(digits) else 1,
             
             // Step 5.4: Identify unit candidate (value + unit)
             unitCandidate = if hasDelim then p2 else p1,
@@ -419,10 +376,8 @@ let
                     if lower = "l" then "L" else lower,
             
             unitNumber = 
-                if rawNum = "" then 
-                    null 
-                else 
-                    try Number.From(Text.Replace(rawNum, ",", ".")) otherwise null,
+                if rawNum = "" then null 
+                else try Number.From(Text.Replace(rawNum, ",", ".")) otherwise null,
             
             // Step 5.7: Convert units (ml→L, g→kg)
             convertedNumber = 
@@ -430,8 +385,7 @@ let
                     if unitNumber = null then null else unitNumber / 1000
                 else if unitSymbol = "g" then 
                     if unitNumber = null then null else unitNumber / 1000
-                else 
-                    unitNumber,
+                else unitNumber,
             
             convertedSymbol = 
                 if unitSymbol = "ml" then "L"
@@ -441,8 +395,7 @@ let
             // Step 5.8: Format final number with 2 decimal places
             convertedNumberText = 
                 if convertedNumber = null then "" 
-                else 
-                    Number.ToText(convertedNumber, "0.##", "en-US"),
+                else Number.ToText(convertedNumber, "0.##", "en-US"),
             
             // Step 5.9: Build final standardized output
             result =
@@ -529,7 +482,6 @@ let
 
     // Step 9: Remove duplicates
     removeDuplicates = Table.Distinct(changeOrder, {"CustomerID"})
-
 in
     removeDuplicates
 ```
@@ -668,7 +620,7 @@ in
 let  
   // Step 1: Merge with Products
   mergedWithProducts = Table.NestedJoin(
-    changeOrder, {"ProductSKU"},
+    addSalesAmount, {"ProductSKU"},
     Products, {"ProductSKU"},
     "Products", JoinKind.LeftOuter),
 
@@ -687,15 +639,15 @@ let
   // Step 4: Expand Customers columns
   expandedCustomers = Table.ExpandTableColumn(
     mergedWithCustomers, "Customers",
-    {"CustomerName", "Email", "Phone", "Country", "City", "Segment"},
-    {"CustomerName", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment"}),
+    {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "Country", "City", "Segment"},
+    {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment"}),
 
   // Step 5: Rename columns
   renamedCols = Table.RenameColumns(expandedCustomers, {{"Country", "OrderCountry"}, {"City", "OrderCity"}}),
 
   // Step 6: Change column order
-  reorderedCols = Table.ReorderColumns(renamedCols, {"OrderID", "OrderDate", "CustomerID", "CustomerName", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment", "ProductSKU", "ProductName", "Category", "Subcategory", "UnitCost", "Qty", "UnitPrice", "SalesAmount", "Currency", "OrderCountry", "OrderCity", "Salesperson", "Channel"})
-in
+  reorderedCols = Table.ReorderColumns(renamedCols, {"OrderID", "OrderDate", "CustomerID", "CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment", "ProductSKU", "ProductName", "Category", "Subcategory", "UnitCost", "Qty", "UnitPrice", "SalesAmount", "Currency", "OrderCountry", "OrderCity", "Salesperson", "Salesperson_ASCII", "Channel"}),
+in 
   reorderedCols
 ```
 
