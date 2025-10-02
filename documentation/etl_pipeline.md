@@ -129,10 +129,11 @@ in
 #### 3.2: fxNumber - Numeric Standardization
 ```m
 let
-    fxNumber = (numberValue as any) as number =>
+    fxNumber = (numberValue as any) as nullable number =>
     let
         result =
-            if numberValue is number then numberValue
+            if numberValue = null or numberValue = "" then null
+            else if numberValue is number then numberValue
             else if numberValue is text then
                 let
                     standardized = Text.Replace(numberValue, ",", "."),
