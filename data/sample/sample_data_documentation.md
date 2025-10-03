@@ -73,7 +73,7 @@ The sample shows various formats that needed parsing:
 - Multiplication symbols: `x` vs `×` 
 - Mixed formats: `24x330 ml`, `12 x 0.5L`, `1kg`
   
-**Resolution:** Complex parsing algorithm that:
+**Resolution:** `fxPackageSize` function:
 1. Extracts pack count (default: 1)
 2. Separates value and unit
 3. Converts to base units (ml→L, g→kg)
@@ -176,6 +176,7 @@ Multiple date formats similar to sales data:
 5. **fxCountry** - Maps country name variations
 6. **fxLogical** - Standardizes boolean values
 7. **fxDiacritics** - Removes Polish special characters
+8. **fxPackageSize** - Standardizes to format: `N × X.XX Unit`
 
 ### Transformation Statistics:
 - **Date formats unified:** 8 different formats → 1 standard format
@@ -213,17 +214,23 @@ Multiple date formats similar to sales data:
 ```m
 // Example: fxText
 let
-    fxText = (txt as text) as text =>
+    fxText = (txt as nullable text) as nullable text =>
     let
-        allowed = 
+        result =
+            if txt = null or txt = "" then null
+            else
+                let
+                    allowed = 
             {"A".."Z","a".."z","0".."9"," ", "."} & 
             {"Ą","Ć","Ę","Ł","Ń","Ó","Ś","Ź","Ż","ą","ć","ę","ł","ń","ó","ś","ź","ż"},
-        
-        toList = Text.ToList(txt),
-        filtered = List.Select(toList, each List.Contains(allowed,_)),
-        cleaned = Text.Combine(filtered,""),
-        singleSpace = Text.Trim(Text.Replace(cleaned, "  ", " ")),
-        result = Text.Proper(singleSpace)
+      
+                    toList = Text.ToList(txt),
+                    filtered = List.Select(toList, each List.Contains(allowed,_)),
+                    cleaned = Text.Combine(filtered,""),
+                    singleSpace = Text.Trim(Text.Replace(cleaned, "  ", " ")),
+                    final = Text.Proper(singleSpace)
+                in
+                    final
     in
         result
 in
