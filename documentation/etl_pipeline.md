@@ -61,21 +61,15 @@ let
         let
             // Remove completely empty rows
             removeEmptyRows = Table.SelectRows(t,
-                each List.NonNullCount(Record.FieldValues(_)) > 0),
-            
-            // Trim all text columns
-            textColumns = List.Select(
-                Table.ColumnNames(removeEmptyRows),
-                each Value.Type(Table.Column(removeEmptyRows, _){0}) = type text),
-            
-            trimmed = Table.TransformColumns(
-                removeEmptyRows,
-                List.Transform(textColumns, (col) => 
-                    {col, each if _ = null then null else Text.Trim(_), type nullable text})),
-            
+                each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
+
+            // Trim all text columns                
+            trimmed = Table.TransformColumns(removeEmptyRows,
+                List.Transform(Table.ColumnNames(removeEmptyRows),
+                    (c) => {c, (x) => if x is text then Text.Trim(x) else x, type any})),
+
             // Standardize column names
-            renamedCols = Table.TransformColumnNames(trimmed, 
-            each Text.Replace(Text.Replace(_, " ", "_"), "#", "No"))
+            renamedCols = Table.TransformColumnNames(trimmed, each Text.Replace(Text.Replace(_, " ", "_"), "#", "No"))
         in
             renamedCols
 in
