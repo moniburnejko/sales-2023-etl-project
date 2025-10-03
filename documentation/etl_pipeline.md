@@ -498,36 +498,45 @@ in
 ### 4.5: Targets Transformation
 ```m
 let
-  source = fxClean(Targets_Wide),
-
-    // Step 1: Unpivot columns
-  unpivotCols = Table.UnpivotOtherColumns(source, {"Salesperson", "Note_"}, "Month", "TargetValue"),
-
-    // Step 2: Standardize text columns
-  standText = Table.TransformColumns(unpivotCols, 
-  {{"Salesperson", each fxText(_), type text},
-  {"Month", each fxText(_), type text}}),
-
+    source = fxClean(Targets_Wide),
+    
+    // Step 1: Unpivot columns (keep non-target columns)
+    unpivoted = Table.UnpivotOtherColumns(source, 
+        {"Salesperson", "Note_"}, "Month", "TargetValue"),
+    
+    // Step 2: Standardize text
+    standardizeText = Table.TransformColumns(unpivoted, 
+        {{"Salesperson", each fxText(_), type text},
+         {"Month", each fxText(_), type text}}),
+    
     // Step 3: Validate numbers
-  valNumbers = Table.TransformColumns(standText, {"TargetValue", each fxNumber(_), type number}),
-
-    // Step 4: monthNumber derivation for date integration
-  monthNumber = Table.TransformColumnTypes(Table.AddColumn(valNumbers, "MonthNumber", each Date.Month(Date.FromText("2023-" & [Month] & "-01", "en-US"))), {{"MonthNumber", Int64.Type}}),
-
-    // Step 5: Rename columns
-  renamedCols = Table.RenameColumns(monthNumber, {"Note_", "Note"}),
-
-    // Step 6: Change column type
-  changeType = Table.TransformColumnTypes(renamedCols, {"Note", type text}),
-
-    // Step 7: Names normalization with diacritics removal (helper column)
-  duplicateCols= Table.DuplicateColumn(changeType, "Salesperson", "Salesperson_ASCII"),
-  noDiacritics = Table.TransformColumns(duplicateCols, {"Salesperson_ASCII", each fxDiacritics(_), type text}),
-
-    // Step 8: Change column order
-  changeOrder = Table.ReorderColumns(noDiacritics, {"Salesperson", "Salesperson_ASCII", "Month", "MonthNumber", "TargetValue", "Note"})
+    validateNumbers = Table.TransformColumns(standardizeText, 
+        {{"TargetValue", each fxNumber(_), type number}}),
+    
+    // Step 4: Derive month number
+    addMonthNumber = Table.AddColumn(validateNumbers, "MonthNumber", 
+        each 
+            let
+                monthNames = {"January", "February", "March", "April", "May", "June",
+                             "July", "August", "September", "October", "November", "December"},
+                position = List.PositionOf(monthNames, [Month])
+            in
+                if position >= 0 then position + 1 else null, Int64.Type),
+    
+    // Step 5: Rename Note column
+    renamed = Table.RenameColumns(addMonthNumber, {{"Note_", "Note"}}),
+    
+    // Step 6: Change type
+    changeType = Table.TransformColumnTypes(renamed, {{"Note", type text}}),
+    
+    // Step 7: Add ASCII helper for salesperson
+    addAscii = Table.AddColumn(changeType, "Salesperson_ASCII", 
+        each fxDiacritics([Salesperson]), type text),
+    
+    // Step 8: Remove rows with null MonthNumber (invalid months)
+    removeInvalid = Table.SelectRows(addAscii, each [MonthNumber] <> null)
 in
-  changeOrder
+    removeInvalid
  ```
 
 ### 4.6: Fees Transformation
