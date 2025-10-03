@@ -277,12 +277,21 @@ let
   source = fxClean(Sales_2023_Q2),
   
   // Step 1: Rename columns
-  renamedCols = Table.RenameColumns(source, {{"Order_ID", "OrderID"}, {"Date", "OrderDate"}, {"CustID", "CustomerID"}, {"SKU", "ProductSKU"}, {"Quantity", "Qty"}, {"Price", "UnitPrice"}, {"Curr", "Currency"}, {"Country_Name", "Country"},  {"Rep", "Salesperson"}}),
-  
-  // Step 2: Apply date standardization
+  renamedCols = Table.RenameColumns(source,
+    {{"Order_ID", "OrderID"}, 
+    {"Date", "OrderDate"}, 
+    {"CustID", "CustomerID"}, 
+    {"SKU", "ProductSKU"}, 
+    {"Quantity", "Qty"}, 
+    {"Price", "UnitPrice"}, 
+    {"Curr", "Currency"}, 
+    {"Country_Name", "Country"},  
+    {"Rep", "Salesperson"}}),
+
+  // Step 2: Date standardization
   standardizeDates = Table.TransformColumns(renamedCols, {"OrderDate", each fxDate(_), type date}),
   
-  // Step 3: Standardize country names
+  // Step 3: Country name standardization
   standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_), type text}),
 
   // Step 4: Validate numbers
@@ -290,25 +299,20 @@ let
     {{"Qty", each fxNumber(_), Int64.Type}, 
     {"UnitPrice", each fxNumber(_), type number}}),
 
-  // Step 5: Standardize text 
+  // Step 5: Text standardization
+  textCols = {"OrderID", "CustomerID", "ProductSKU", "City", "Salesperson", "Channel"},
   standardizeText = Table.TransformColumns(validateNumbers,
-  {{"OrderID", each fxText(_), type text},
-  {"CustomerID", each fxText(_), type text},
-  {"ProductSKU", each fxText(_), type text},
-  {"City", each fxText(_), type text},
-  {"Salesperson", each fxText(_), type text}, 
-  {"Channel", each fxText(_), type text}}),
+    List.Transform(textCols, (col) => {col, each fxText(_), type text})),
   
-  // Step 6: Change column type
+  // Step 6: Currency type conversion
   changeType = Table.TransformColumnTypes(standardizeText, {"Currency", type text}),
 
-  // Step 7: Salesperson names normalization with diacritics removal (helper column)
+  // Step 7: Add ASCII helper column for salesperson names
   duplicateCols= Table.DuplicateColumn(changeType, "Salesperson", "Salesperson_ASCII"),
   noDiacritics = Table.TransformColumns(duplicateCols, {"Salesperson_ASCII", each fxDiacritics(_), type text}),
 
   // Step 8: Remove duplicates
-  removeDuplicates = Table.Distinct(noDiacritics, {"OrderID"})
-  
+  removeDuplicates = Table.Distinct(noDiacritics, {"OrderID"})  
 in
   removeDuplicates
 ```
@@ -318,10 +322,10 @@ in
 let
   source = fxClean(Sales_2023_Q1),
 
-  // Step 1: Apply date standardization
+  // Step 1: Date standardization
   standardizeDates = Table.TransformColumns(source, {"OrderDate", each fxDate(_), type date}),
   
-  // Step 2: Standardize country names
+  // Step 2: Country name standardization
   standardizeCountries = Table.TransformColumns(standardizeDates, {"Country", each fxCountry(_), type text}),
 
   // Step 3: Validate numbers
@@ -329,33 +333,28 @@ let
     {{"Qty", each fxNumber(_), Int64.Type}, 
     {"UnitPrice", each fxNumber(_), type number}}),
 
-  // Step 4: Standardize text 
+  // Step 4: Text standardization
+  textCols = {"OrderID", "CustomerID", "ProductSKU", "City", "Salesperson", "Channel"},
   standardizeText = Table.TransformColumns(validateNumbers,
-  {{"OrderID", each fxText(_), type text},
-  {"CustomerID", each fxText(_), type text},
-  {"ProductSKU", each fxText(_), type text},
-  {"City", each fxText(_), type text},
-  {"Salesperson", each fxText(_), type text}, 
-  {"Channel", each fxText(_), type text}}),
-
-  // Step 5: Change column type
-  changeType = Table.TransformColumnTypes(standardizeText, {"Currency", type text}),
+    List.Transform(textCols, (col) => {col, each fxText(_), type text})),
   
-  // Step 6: Salesperson names normalization with diacritics removal (helper column)
+  // Step 5: Currency type conversion
+  changeType = Table.TransformColumnTypes(standardizeText, {"Currency", type text}),
+
+  // Step 6: Add ASCII helper column for salesperson names
   duplicateCols= Table.DuplicateColumn(changeType, "Salesperson", "Salesperson_ASCII"),
   noDiacritics = Table.TransformColumns(duplicateCols, {"Salesperson_ASCII", each fxDiacritics(_), type text}),
 
-  // Step 7: Remove duplicates
-  removeDuplicates = Table.Distinct(noDiacritics, {"OrderID"}),
+  // Step 7: Combine Q1 and Q2 data
+  combinedData = Table.Combine({noDiacritics, Sales_Q2}),
 
-  // Step 8: Append Q1 and Q2
-  appendQuery = Table.Combine({removeDuplicates, Sales_Q2}),
-
-  // Step 9: Calculate SalesAmount
-  addSalesAmount = Table.AddColumn(appendQuery, "SalesAmount",
-        each [Qty] * [UnitPrice], type number),
+  // Step 8: Remove duplicates (keep first occurrence by OrderID)
+  removeDuplicates = Table.Distinct(combinedData, {"OrderID"}),
+    
+  // Step 9: Add calculated SalesAmount column
+  withSalesAmount = Table.AddColumn(removeDuplicates, "SalesAmount", each [Qty] * [UnitPrice], type number),
 in
-  addSalesAmount
+  withSalesAmount
 ```
 
 Results: 850 clean transaction records
@@ -563,68 +562,108 @@ in
 ### 4.7: Shipping Transformation
 ```m
 let
-  source = fxClean(Shipping),
-
-    // Step 1: Split columns by delimiter "|"
-  splitCols = Table.SplitColumn(Table.TransformColumnTypes(source, {{"ShippingInfo", type text}}), "ShippingInfo", Splitter.SplitTextByDelimiter("|"), {"Carrier", "DeliveryType", "EstimatedDeliveryDay"}),
-
+    source = fxClean(Shipping2),
+    
+    // Step 1: Split column (with validation)
+    // Step 1.1: Standardize text column
+    ensureText = Table.TransformColumnTypes(source, {{"ShippingInfo", type text}}),
+    
+    // Step 1.2: Split with validation
+    addSplitColumns = Table.AddColumn(ensureText, "SplitParts",
+        each 
+            let
+                parts = Text.Split([ShippingInfo], "|"),
+                padded = parts & List.Repeat({null}, 3 - List.Count(parts))
+            in
+                padded),
+    
+    // Step 1.3: Expand into separate columns
+    expandCarrier = Table.AddColumn(addSplitColumns, "Carrier", 
+        each [SplitParts]{0}, type text),
+    expandDeliveryType = Table.AddColumn(expandCarrier, "DeliveryType", 
+        each [SplitParts]{1}, type text),
+    expandDeliveryDays = Table.AddColumn(expandDeliveryType, "EstimatedDeliveryDays", 
+        each [SplitParts]{2}, type text),
+    
+    // Step 1.4: Remove helper column and original
+    removeHelper = Table.RemoveColumns(expandDeliveryDays, 
+        {"SplitParts", "ShippingInfo"}),
+    
     // Step 2: Standardize text columns
-  standText = Table.TransformColumns(splitCols, {{"OrderID", each fxText(_), type text}, {"DeliveryType", each fxText(_), type text}}),
-
+    standardizeText = Table.TransformColumns(removeHelper, 
+        {{"OrderID", each fxText(_), type text}, 
+         {"DeliveryType", each fxText(_), type text}}),
+    
     // Step 3: Validate numbers
-  valNumbers = Table.TransformColumns(standText, {"CostPLN", each fxNumber(_), type number}),
+    validateNumbers = Table.TransformColumns(standardizeText, 
+        {{"CostPLN", each fxNumber(_), type number}}),
+    
+    // Step 4: Clean delivery days
+    cleanDays = Table.TransformColumns(validateNumbers, 
+        {{"EstimatedDeliveryDays", each 
+            if _ = null then null 
+            else Text.Replace(Text.Replace(Text.Replace(_, "d", ""), "–", "-"), "—", "-"), type text}}),
+    
+    // Step 8: Clean address
+    cleanAddress = Table.TransformColumns(cleanDays, 
+        {{"Address", each Text.Replace(_, "  ", " "), type text}}),
 
-    // Step 4: Replace values in columns
-  replaceDays = Table.TransformColumns(
-    valNumbers,{"EstimatedDeliveryDay",
-        each Text.Replace(Text.Replace(Text.Replace(_, "d", ""), "–", "-"), "—", "-"),
-        type text}),
-  replaceAddress = Table.ReplaceValue(replaceDays, "  ", " ", Replacer.ReplaceValue, {"Address"}),
-
-    // Step 5: Change column type
-  changeType = Table.TransformColumnTypes(replaceAddress, {"Address", type text}),
-
-    // Step 6: Remove duplicates
-  removeDuplicates = Table.Distinct(changeType, {"OrderID"})
+    // Step 9: Change column order
+    changeOrder = Table.ReorderColumns(cleanAddress, {"OrderID", "Carrier", "DeliveryType", "EstimatedDeliveryDays", "CostPLN", "Address"}),
+    
+    // Step 10: Remove duplicates
+    removeDuplicates = Table.Distinct(changeOrder, {"OrderID"})
 in
-  removeDuplicates
+    removeDuplicates
 ```
 
 ## Phase 5: Data Integration
 ### 5.1: Create Relationships
 ```m
-let  
-  // Step 1: Merge with Products
-  mergedWithProducts = Table.NestedJoin(
-    addSalesAmount, {"ProductSKU"},
-    Products, {"ProductSKU"},
-    "Products", JoinKind.LeftOuter),
+  // Continue in Q1 (renamed to Sales_2023)
+let
+  Step 1: Merge with Products   
+  joinedProducts = Table.NestedJoin(
+        withSalesAmount, 
+        {"ProductSKU"},
+        Products, 
+        {"ProductSKU"},
+        "ProductInfo", 
+        JoinKind.LeftOuter),
 
-  // Step 2: Expand Products columns
+  // Step 2: Expand Products columns    
   expandedProducts = Table.ExpandTableColumn(
-    mergedWithProducts, "Products",
-    {"ProductName", "Category", "Subcategory", "UnitCost"},
-    {"ProductName", "Category", "Subcategory", "UnitCost"}),
-  
-  // Step 3: Merge with Customers
-  mergedWithCustomers = Table.NestedJoin(
-    expandedProducts, {"CustomerID"},
-    Customers, {"CustomerID"},
-    "Customers", JoinKind.LeftOuter),
+        joinedProducts, 
+        "ProductInfo",
+        {"ProductName", "Category", "Subcategory", "UnitCost"},
+        {"ProductName", "Category", "Subcategory", "UnitCost"}),
+
+  // Step 3: Merge with Customers   
+  joinedCustomers = Table.NestedJoin(
+        expandedProducts, 
+        {"CustomerID"},
+        Customers, 
+        {"CustomerID"},
+        "CustomerInfo", 
+        JoinKind.LeftOuter),
 
   // Step 4: Expand Customers columns
   expandedCustomers = Table.ExpandTableColumn(
-    mergedWithCustomers, "Customers",
-    {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "Country", "City", "Segment"},
-    {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment"}),
+        joinedCustomers, 
+        "CustomerInfo",
+        {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "Country", "City", "Segment"},
+        {"CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment"}),
 
-  // Step 5: Rename columns
-  renamedCols = Table.RenameColumns(expandedCustomers, {{"Country", "OrderCountry"}, {"City", "OrderCity"}}),
+  // Step 5: Rename columns   
+  renamedCols = Table.RenameColumns(expandedCustomers,
+        {{"Country", "OrderCountry"}, {"City", "OrderCity"}}),
 
   // Step 6: Change column order
-  reorderedCols = Table.ReorderColumns(renamedCols, {"OrderID", "OrderDate", "CustomerID", "CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment", "ProductSKU", "ProductName", "Category", "Subcategory", "UnitCost", "Qty", "UnitPrice", "SalesAmount", "Currency", "OrderCountry", "OrderCity", "Salesperson", "Salesperson_ASCII", "Channel"}),
-in 
-  reorderedCols
+  reorderedCols = Table.ReorderColumns(
+        renamedCols,
+        {"OrderID", "OrderDate", "CustomerID", "CustomerName", "CustomerName_ASCII", "Email", "Phone", "CustomerCountry", "CustomerCity", "Segment", "ProductSKU", "ProductName", "Category", "Subcategory", "Qty", "UnitPrice", "UnitCost", "Currency", "SalesAmount", "OrderCountry", "OrderCity", "Channel", "Salesperson", "Salesperson_ASCII"})
+in
+    reorderedCols
 ```
 
 ### 5.2: Validate Referential Integrity
