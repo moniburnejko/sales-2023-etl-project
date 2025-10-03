@@ -230,7 +230,7 @@ in
   fxLogical
 ```
 
-#### 3.7: fxPackageSize - Package size standarization
+#### 3.7: fxPackageSize - Package Size Standardization
 ```m
 let
     fxPackageSize = (input as text) as text =>
