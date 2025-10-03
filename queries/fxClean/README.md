@@ -11,13 +11,16 @@ Manual data cleaning is time-consuming and error-prone. This function eliminates
 let
     fxClean = (t as table) as table =>
         let
+            // Remove completely empty rows
             removeEmptyRows = Table.SelectRows(t,
                 each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
-                
+
+            // Trim all text columns                
             trimmed = Table.TransformColumns(removeEmptyRows,
                 List.Transform(Table.ColumnNames(removeEmptyRows),
                     (c) => {c, (x) => if x is text then Text.Trim(x) else x, type any})),
 
+            // Standardize column names
             renamedCols = Table.TransformColumnNames(trimmed, each Text.Replace(Text.Replace(_, " ", "_"), "#", "No"))
         in
             renamedCols
