@@ -411,44 +411,39 @@ let
     // Step 1: Standardize text columns
     standardizeText = Table.TransformColumns(source,
         {{"CustomerID", each fxText(_), type text},
-        {"CustomerName", each fxText(_), type text},
-        {"City", each fxText(_), type text}}),
-
-    // Step 2: CustomerName normalization with diacritics removal (helper column)
-    duplicateCols= Table.DuplicateColumn(standardizeText, "CustomerName", "CustomerName_ASCII"),
-    noDiacritics = Table.TransformColumns(duplicateCols, {"CustomerName_ASCII", each fxDiacritics(_), type text}),
-  
-    // Step 3: Email normalization with diacritics removal
-    normalizeEmails = Table.TransformColumns(noDiacritics, 
-        {{"Email", each 
-        let
-            lower = Text.Lower(_),
-            noDiacritics = fxDiacritics(lower)
-        in
-            noDiacritics, type text}}),
+         {"CustomerName", each fxText(_), type text},
+         {"City", each fxText(_), type text}}),
     
-    // Step 4: Phone standardization
+    // Step 2: Email normalization (simplified)
+    normalizeEmails = Table.TransformColumns(standardizeText, 
+        {{"Email", each fxDiacritics(Text.Lower(_)), type text}}),
+    
+    // Step 3: Phone standardization  
     standardizePhones = Table.TransformColumns(normalizeEmails, 
         {{"Phone", each Text.Select(_, {"0".."9", "+"}), type text}}),
     
-    // Step 5: Standardize country names
+    // Step 4: Standardize country names
     standardizeCountries = Table.TransformColumns(standardizePhones, 
         {{"Country", each fxCountry(_), type text}}),
     
-    // Step 6: Apply date standardization
+    // Step 5: Date standardization
     standardizeDates = Table.TransformColumns(standardizeCountries, 
         {{"JoinDate", each fxDate(_), type date}}),
-
-    // Step 7: Change columns type
+    
+    // Step 6: Type changes
     changeType = Table.TransformColumnTypes(standardizeDates, 
-    {{"Segment", type text},
-    {"VAT", type text}}),
+        {{"Segment", type text}, {"VAT", type text}}),
+    
+    // Step 7: Add ASCII helper column
+    addAscii = Table.AddColumn(changeType, "CustomerName_ASCII", 
+        each fxDiacritics([CustomerName]), type text),
 
     // Step 8: Change column order
-    changeOrder = Table.ReorderColumns(changeType, {"CustomerID", "CustomerName", "CustomerName_ASCII", "Email", "Phone", "Country", "City", "Segment", "JoinDate", "VAT"}),
-
-    // Step 9: Remove duplicates
-    removeDuplicates = Table.Distinct(changeOrder, {"CustomerID"})
+    changeOrder = Table.ReorderColumns(addAscii, {"CustomerID", "CustomerName", "CustomerName_ASCII", "Email", "Phone", "Country", "City", "Segment", "JoinDate", "VAT"}),
+   
+    // Step 9: Remove duplicates (keep most recent by JoinDate)
+    sorted = Table.Sort(changeOrder, {{"JoinDate", Order.Descending}}),
+    removeDuplicates = Table.Distinct(sorted, {"CustomerID"})
 in
     removeDuplicates
 ```
