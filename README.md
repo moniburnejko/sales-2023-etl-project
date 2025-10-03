@@ -31,7 +31,7 @@ Sales operations generated data across 8 separate sources with critical quality 
 
 ### Custom Functions Developed
 
-Created **7 reusable M language functions** for robust data transformation:
+Created **8 reusable M language functions** for robust data transformation:
 
 | Function | Purpose | Issues Resolved |
 |----------|---------|----------------|
@@ -42,6 +42,8 @@ Created **7 reusable M language functions** for robust data transformation:
 | `fxCountry` | Country consolidation | 5+ variants per country |
 | `fxLogical` | Boolean standardization | Yes/No/1/0/TRUE/FALSE |
 | `fxDiacritics` | Character replacement | Polish special characters |
+| `fxPackageSize` | Package Size format standardization | Package format chaos |
+ 
 
 ### Transformation Pipeline
 
@@ -64,7 +66,7 @@ sales-2023-etl-project/
 ├── 📂 queries/
 │   └── power_query_functions.m # Reusable M code functions
 └── 📂 images/
-    └── 📂 transformations/        # Before/after screenshots
+    └── 📂 transformations/     # Before/after screenshots
 ```
 
 ## Results & Impact
