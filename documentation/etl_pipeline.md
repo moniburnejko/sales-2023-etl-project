@@ -236,6 +236,43 @@ in
   fxLogical
 ```
 
+#### 3.7: fxPackageSize 
+```m
+let
+    fxPackageSize = (input as text) as text =>
+        let
+            unitConversions = [
+                ml = [factor = 0.001, target = "L"],
+                g = [factor = 0.001, target = "kg"],
+                L = [factor = 1, target = "L"],
+                kg = [factor = 1, target = "kg"]],
+            
+            cleaned = Text.Replace(Text.Replace(Text.Upper(input), "×", "x"), "X", "x"),
+            parts = Text.Split(cleaned, "x"),
+            
+            packCount = if List.Count(parts) > 1 
+                then try Number.From(Text.Select(parts{0}, {"0".."9"})) otherwise 1
+                else 1,
+            
+            unitText = if List.Count(parts) > 1 then parts{1} else parts{0},
+            numValue = try Number.From(Text.Select(unitText, {"0".."9", "."})) otherwise null,
+            unitSymbol = Text.Lower(Text.Select(unitText, {"A".."Z", "a".."z"})),
+            
+            conversion = Record.FieldOrDefault(unitConversions, unitSymbol, null),
+            finalValue = if conversion <> null and numValue <> null
+                then Number.Round(numValue * conversion[factor], 2)
+                else numValue,
+            finalUnit = if conversion <> null then conversion[target] else unitSymbol,
+            
+            result = Text.From(packCount) & 
+                (if finalValue <> null then " × " & Text.From(finalValue) else "") &
+                (if finalUnit <> "" then " " & finalUnit else "")
+        in
+            result
+in
+    fxPackageSize
+```
+
 ### Phase 4: Source-Specific Transformations
 
 #### 4.1: Sales Q1 & Q2 Transformation
@@ -332,7 +369,7 @@ Results: 850 clean transaction records
 ### 4.2: Products Transformation
 ```m
 let
-    source = fxClean(Products2),
+    source = fxClean(Products),
 
     // Step 1: Rename columns
     renamedColumns = Table.RenameColumns(source, {{"SKU", "ProductSKU"}}),
@@ -356,95 +393,15 @@ let
         {{"Active", each fxLogical(_), type logical}}),
 
     // Step 5: Complex package size normalization
-    packageSizeClean = (packageSizeValue) => 
-        let
-            // Step 5.1: Clean and normalize input text
-            txt = if packageSizeValue = null then null 
-                else Text.Trim(Text.Replace(Text.Replace(Text.Replace(Text.From(packageSizeValue), "×", "x"), "X", "x"),"  ", " ")),
-            
-            // Step 5.2: Split by delimiter and determine format
-            parts = if txt = null then {} else Text.Split(txt, "x"),
-            hasDelim = List.Count(parts) > 1,
-            p1 = try Text.Trim(parts{0}) otherwise null,
-            p2 = if hasDelim then try Text.Trim(parts{1}) otherwise null else null,
-            
-            // Step 5.3: Extract pack count (e.g., "6" from "6x330ml")
-            packCount = 
-                if hasDelim then 
-                    let 
-                        digits = Text.Select(p1, {"0".."9"}) 
-                    in 
-                        if digits = "" then 1 else Number.From(digits) else 1,
-            
-            // Step 5.4: Identify unit candidate (value + unit)
-            unitCandidate = if hasDelim then p2 else p1,
-            u0 = if unitCandidate = null then null else Text.Replace(unitCandidate, " ", ""),
-            
-            // Step 5.5: Separate numeric value and unit symbol
-            rawNum = if u0 = null then "" else Text.Select(u0, {"0".."9", ".", ","}),
-            rawLet = if u0 = null then "" else Text.Select(u0, {"A".."Z", "a".."z"}),
-            
-            // Step 5.6: Normalize unit symbol (ml→L, g→kg, etc.)
-            unitSymbol = 
-                let 
-                    lower = Text.Lower(rawLet) 
-                in 
-                    if lower = "l" then "L" else lower,
-            
-            unitNumber = 
-                if rawNum = "" then null 
-                else try Number.From(Text.Replace(rawNum, ",", ".")) otherwise null,
-            
-            // Step 5.7: Convert units (ml→L, g→kg)
-            convertedNumber = 
-                if unitSymbol = "ml" then 
-                    if unitNumber = null then null else unitNumber / 1000
-                else if unitSymbol = "g" then 
-                    if unitNumber = null then null else unitNumber / 1000
-                else unitNumber,
-            
-            convertedSymbol = 
-                if unitSymbol = "ml" then "L"
-                else if unitSymbol = "g" then "kg"
-                else unitSymbol,
-            
-            // Step 5.8: Format final number with 2 decimal places
-            convertedNumberText = 
-                if convertedNumber = null then "" 
-                else Number.ToText(convertedNumber, "0.##", "en-US"),
-            
-            // Step 5.9: Build final standardized output
-            result =
-                if convertedNumberText = "" and (convertedSymbol = null or convertedSymbol = "") then
+    transformPackageSize = Table.TransformColumns(logicalColumn, {"PackageSize", each fxPackageSize(_), type text}),
 
-                    // Case 1: No unit info (e.g., "6" → "6")
-                    Text.From(packCount)
-                else if convertedNumberText <> "" and convertedSymbol <> "" then
-
-                    // Case 2: Full info (e.g., "6x330ml" → "6 × 0.33 L")
-                    Text.From(packCount) & " × " & convertedNumberText & " " & convertedSymbol
-                else if convertedNumberText <> "" then
-
-                    // Case 3: Number only (e.g., "6x330" → "6 × 330")
-                    Text.From(packCount) & " × " & convertedNumberText
-                else
-
-                    // Case 4: Unit only (e.g., "6xL" → "6 × L")
-                    Text.From(packCount) & " × " & convertedSymbol
-        in
-            result,
-    
-    // Step 6: Apply the PackageSize transformation
-    transformPackageSize = Table.TransformColumns(logicalColumn,
-    {{"PackageSize", each packageSizeClean(_), type text}}),
-
-    // Step 7: Validate EAN codes
+    // Step 6: Validate EAN codes
     validateEAN = Table.SelectRows(transformPackageSize, each Text.Length([EAN]) = 13),
 
-    // Step 8: Remove duplicates
+    // Step 7: Remove duplicates
     removeDuplicates = Table.Distinct(validateEAN, {"ProductSKU"}),
 
-    // Step 9: Change column type
+    // Step 8: Change column type
     changeType = Table.TransformColumnTypes(removeDuplicates, {"EAN", Int64.Type})
 in
     changeType
