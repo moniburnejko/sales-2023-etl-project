@@ -69,4 +69,4 @@ While samples contain 25 records, the full project processed:
 - **2,000+** transaction records
 - **8** separate data sources
 - **50+** unique transformation rules
-- **7** custom M functions
+- **8** custom M functions
