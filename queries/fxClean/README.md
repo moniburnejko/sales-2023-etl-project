@@ -26,10 +26,8 @@ let
                     {col, each if _ = null then null else Text.Trim(_), type nullable text})),
             
             // Standardize column names
-            renamedCols = Table.TransformColumnNames(
-                trimmed, 
-                each Text.Proper(
-                    Text.Replace(Text.Replace(_, " ", "_"), "#", "No")))
+            renamedCols = Table.TransformColumnNames(trimmed, 
+            each Text.Replace(Text.Replace(_, " ", "_"), "#", "No"))
         in
             renamedCols
 in
