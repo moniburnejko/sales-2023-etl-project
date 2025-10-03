@@ -364,41 +364,42 @@ Results: 850 clean transaction records
 ```m
 let
     source = fxClean(Products),
-
-    // Step 1: Rename columns
-    renamedColumns = Table.RenameColumns(source, {{"SKU", "ProductSKU"}}),
-
-    // Step 2: Standardize text columns
-    replacedValue = Table.ReplaceValue(renamedColumns, "1", "i", Replacer.ReplaceText, {"ProductName"}),
     
-    standardizeText = Table.TransformColumns(replacedValue, 
-        {{"ProductSKU", each fxText(_), type text}, 
-        {"ProductName", each fxText(_), type text},
-        {"Category", each fxText(_), type text}, 
-        {"Subcategory", each fxText(_), type text},  
-        {"Supplier", each fxText(_), type text}}),
-
-    // Step 3: Validate numbers
+    // Step 1: Rename columns
+    renamed = Table.RenameColumns(source, {{"SKU", "ProductSKU"}}),
+    
+    // Step 2: Fix data entry errors
+    fixedValues = Table.ReplaceValue(renamed, "1", "i", 
+        Replacer.ReplaceText, {"ProductName"}),
+    
+    // Step 3: Standardize text columns 
+    textColumns = {"ProductSKU", "ProductName", "Category", "Subcategory", "Supplier"},
+    standardizeText = Table.TransformColumns(fixedValues, 
+        List.Transform(textColumns, (col) => {col, each fxText(_), type text})),
+    
+    // Step 4: Validate numbers
     validateNumbers = Table.TransformColumns(standardizeText, 
         {{"UnitCost", each fxNumber(_), type number}}),
-
-    // Step 4: Logical normalization     
+    
+    // Step 5: Logical normalization     
     logicalColumn = Table.TransformColumns(validateNumbers, 
         {{"Active", each fxLogical(_), type logical}}),
-
-    // Step 5: Complex package size normalization
-    transformPackageSize = Table.TransformColumns(logicalColumn, {"PackageSize", each fxPackageSize(_), type text}),
-
-    // Step 6: Validate EAN codes
-    validateEAN = Table.SelectRows(transformPackageSize, each Text.Length([EAN]) = 13),
-
-    // Step 7: Remove duplicates
-    removeDuplicates = Table.Distinct(validateEAN, {"ProductSKU"}),
-
-    // Step 8: Change column type
-    changeType = Table.TransformColumnTypes(removeDuplicates, {"EAN", Int64.Type})
+    
+    // Step 6: Package size normalization
+    transformPackageSize = Table.TransformColumns(logicalColumn,
+        {{"PackageSize", each fxPackageSize(_), type text}}),
+    
+    // Step 7: Validate EAN codes (should be 13 digits)
+    validateEAN = Table.SelectRows(transformPackageSize, 
+        each [EAN] <> null and Text.Length(Text.From([EAN])) = 13),
+    
+    // Step 8: Change EAN type
+    changeType = Table.TransformColumnTypes(validateEAN, {{"EAN", Int64.Type}}),
+    
+    // Step 9: Remove duplicates
+    removeDuplicates = Table.Distinct(changeType, {"ProductSKU"})
 in
-    changeType
+    removeDuplicates
 ```
 
 Results: 60 products with normalized package sizes
