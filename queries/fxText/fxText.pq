@@ -13,9 +13,9 @@ let
                     filtered = List.Select(toList, each List.Contains(allowed,_)),
                     cleaned = Text.Combine(filtered,""),
                     singleSpace = Text.Trim(Text.Replace(cleaned, "  ", " ")),
-                    res = Text.Proper(singleSpace)
+                    final = Text.Proper(singleSpace)
                 in
-                    res
+                    final
     in
         result
 in
