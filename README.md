@@ -42,7 +42,7 @@ Created **8 reusable M language functions** for robust data transformation:
 | `fxCountry` | Country consolidation | 5+ variants per country |
 | `fxLogical` | Boolean standardization | Yes/No/1/0/TRUE/FALSE |
 | `fxDiacritics` | Character replacement | Polish special characters |
-| `fxPackageSize` | Package size format standardization | Package format chaos |
+| `fxPackageSize` | Package size format standardization | Inconsistent packaging formats |
  
 
 ### Transformation Pipeline
