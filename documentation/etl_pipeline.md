@@ -562,7 +562,7 @@ in
 ### 4.7: Shipping Transformation
 ```m
 let
-    source = fxClean(Shipping2),
+    source = fxClean(Shipping),
     
     // Step 1: Split column (with validation)
     // Step 1.1: Standardize text column
@@ -618,7 +618,6 @@ in
 ```
 
 ## Phase 5: Data Integration
-### 5.1: Create Relationships
 ```m
   // Continue in Q1 (renamed to Sales_2023)
 let
@@ -666,42 +665,64 @@ in
     reorderedCols
 ```
 
-### 5.2: Validate Referential Integrity
-
-### Validation Checklist
-
-```m
-let
-  orphanedOrders = Table.SelectRows(reorderedCols, each
-        not List.Contains(Customers[CustomerID], [CustomerID])),
-  validationResult = if Table.RowCount(orphanedOrders) = 0
-        then "No orphaned records"
-        else "Found " & Text.From(Table.RowCount(orphanedOrders)) & " orphaned records"
-in
-    validationResult
-```
-
 ## Phase 6: Final Validation
-
-1. Date Range
 ```m
-dateRange = Table.SelectRows(Sales_2023, each [OrderDate] >= #date(2023, 1, 1) and [OrderDate] <= #date(2023, 12, 31))
-```
-2. Null Keys
-```m
-nullKeys = Table.SelectRows(Sales_2023, each [OrderID] = null)
-```
-3. Foreign Keys
-```m
-foreignKeys = Table.SelectRows(Sales_2023, each [OrderID] = null)
-```
-4. Numeric Range
-```m
-numericRange = Table.SelectRows(Sales_2023, each [Qty] > 0 and [UnitPrice] > 0)
-```
-5. Duplicated
-```m
-removeAllDuplicates = Table.Distinct(Sales_2023, {"OrderID"})
+  // Continue in Q1 (renamed to Sales_2023)
+let
+  // Validation 1: Orphaned products
+  orphanedProducts = Table.SelectRows(
+      reorderedCols,
+      each [ProductName] = null and [ProductSKU] <> null),
+  orphanedProductsCount = Table.RowCount(orphanedProducts),
+    
+  // Validation 2: Orphaned customers
+  orphanedCustomers = Table.SelectRows(
+      reorderedCols,
+      each [CustomerName] = null and [CustomerID] <> null),
+  orphanedCustomersCount = Table.RowCount(orphanedCustomers),
+    
+  // Validation 3: Null keys
+  nullOrderIDs = Table.RowCount(
+      Table.SelectRows(reorderedCols, each [OrderID] = null)),
+  nullCustomerIDs = Table.RowCount(
+      Table.SelectRows(reorderedCols, each [CustomerID] = null)),
+  nullProductSKUs = Table.RowCount(
+      Table.SelectRows(reorderedCols, each [ProductSKU] = null)),
+    
+  // Validation 6: Date range
+  invalidDates = Table.SelectRows(
+      reorderedCols,
+      each [OrderDate] < #date(2023, 1, 1) or [OrderDate] > #date(2023, 12, 31)),
+  invalidDatesCount = Table.RowCount(invalidDates),
+    
+  // Validation report
+  validationReport = #table(
+      {"Validation Check", "Issue Count", "Status"},
+      {{"Orphaned Products", 
+        orphanedProductsCount, 
+        if orphanedProductsCount = 0 then "PASS" else "FAIL"},
+            
+      {"Orphaned Customers", 
+      orphanedCustomersCount, 
+      if orphanedCustomersCount = 0 then "PASS" else "FAIL"},
+            
+      {"Null Order IDs", 
+      nullOrderIDs, 
+      if nullOrderIDs = 0 then "PASS" else "FAIL"},
+            
+      {"Null Customer IDs", 
+      nullCustomerIDs, 
+      if nullCustomerIDs = 0 then "PASS" else "FAIL"},
+            
+      {"Null Product SKUs", 
+      nullProductSKUs, 
+      if nullProductSKUs = 0 then "PASS" else "FAIL"},
+            
+      {"Invalid Dates (outside 2023)",
+      invalidDatesCount, 
+      if invalidDatesCount = 0 then "PASS" else "FAIL"}})
+in
+  validationReport
 ```
 
 ### Validation Checklist
@@ -711,8 +732,6 @@ removeAllDuplicates = Table.Distinct(Sales_2023, {"OrderID"})
 | Date Range | 100% valid |
 | Null Keys | 0 nulls |
 | Foreign Keys | 0 orphans |
-| Numeric Range | 100% valid |
-| Duplicates | No duplicates |
 
 ## Error Handling
 ### Common Issues & Solutions
