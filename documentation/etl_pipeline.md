@@ -514,17 +514,12 @@ let
         {{"TargetValue", each fxNumber(_), type number}}),
     
     // Step 4: Derive month number
-    addMonthNumber = Table.AddColumn(validateNumbers, "MonthNumber", 
-        each 
-            let
-                monthNames = {"January", "February", "March", "April", "May", "June",
-                             "July", "August", "September", "October", "November", "December"},
-                position = List.PositionOf(monthNames, [Month])
-            in
-                if position >= 0 then position + 1 else null, Int64.Type),
+    monthNumber = Table.TransformColumnTypes(Table.AddColumn(validateNumbers, "MonthNumber", 
+            each Date.Month(Date.FromText("2023-" & [Month] & "-01", "en-US"))), 
+        {{"MonthNumber", Int64.Type}}),
     
     // Step 5: Rename Note column
-    renamed = Table.RenameColumns(addMonthNumber, {{"Note_", "Note"}}),
+    renamed = Table.RenameColumns(monthNumber, {{"Note_", "Note"}}),
     
     // Step 6: Change type
     changeType = Table.TransformColumnTypes(renamed, {{"Note", type text}}),
@@ -532,9 +527,12 @@ let
     // Step 7: Add ASCII helper for salesperson
     addAscii = Table.AddColumn(changeType, "Salesperson_ASCII", 
         each fxDiacritics([Salesperson]), type text),
-    
-    // Step 8: Remove rows with null MonthNumber (invalid months)
-    removeInvalid = Table.SelectRows(addAscii, each [MonthNumber] <> null)
+
+    // Step 8: Change column order
+    changeOrder = Table.ReorderColumns(addAscii, {"Salesperson", "Salesperson_ASCII", "Month", "MonthNumber", "TargetValue", "Note"}),
+
+    // Step 9: Remove rows with null MonthNumber (invalid months)
+    removeInvalid = Table.SelectRows(changeOrder, each [MonthNumber] <> null)
 in
     removeInvalid
  ```
