@@ -455,41 +455,44 @@ Results: 120 customers with clean contact data
 ```m
 let
     source = fxClean(Returns),
+    
+    // Steps 1: Date standardization
+    standardizeDates = Table.TransformColumns(source, 
+        {{"Date", each fxDate(_), type date}}),
 
-    // Step 1: Apply date standardization
-    standardizeDates = Table.TransformColumns(source, {"Date", each fxDate(_), type date}),
-
-    // Step 2: Standardize text columns
+    // Steps 2: Standardize text columns
     standardizeText = Table.TransformColumns(standardizeDates,
-    {{"ReturnID", each fxText(_), type text},
-    {"OrderID", each fxText(_), type text},
-    {"Reason", each fxText(_), type text},
-    {"Status", each fxText(_), type text}}),
+        {{"ReturnID", each fxText(_), type text},
+         {"OrderID", each fxText(_), type text},
+         {"Reason", each fxText(_), type text},
+         {"Status", each fxText(_), type text}}),
 
-    // Step 3: Rename columns
-    renamedCols = Table.RenameColumns(standardizeText, {"Date", "ReturnDate"}),
+    // Step 3: Rename columns   
+    renamed = Table.RenameColumns(standardizeText, {{"Date", "ReturnDate"}}),
 
-    // Step 4: Remove duplicates
-    removeDuplicates = Table.Distinct(renamedCols, {"ReturnID"}),
-
-    // Step 5: Merge with Sales_2023 to validate dates 
-    merged = Table.NestedJoin(
-        removeDuplicates,
-        {"OrderID"},
-        Sales_2023,
-        {"OrderID"},
-        "OrderDate",
-        JoinKind.LeftOuter),
-    expanded = Table.ExpandTableColumn(merged, "OrderDate", {"OrderDate"}),
-
-    // Step 6: Validate if ReturndDate if after OrderDate
-    dateCheck = Table.AddColumn(expanded, "IsReturnAfterOrder",
-        each if [ReturnDate] > [OrderDate] then true else false, type logical),
-
-    // Step 7: Remove OrderDate column 
-    removeCol = Table.RemoveColumns(dateCheck, {"OrderDate"})
+     // Step 4: Remove duplicates      
+    removeDuplicates = Table.Distinct(renamed, {"ReturnID"}),
+    
+    // Step 5: Validate if ReturndDate if after OrderDate
+    // Step 5.1: Create lookup list 
+    orderDates = Table.ToRows(Table.SelectColumns(Sales_2023, {"OrderID", "OrderDate"})),
+    orderDateLookup = List.Accumulate(
+        orderDates,
+        [],
+        (state, current) => Record.AddField(state, current{0}, current{1})),
+    
+    // Step 5.2: Add validation column for reporting
+    addValidation = Table.AddColumn(removeDuplicates, "IsReturnAfterOrder",
+        each 
+            let
+                orderDate = Record.FieldOrDefault(orderDateLookup, [OrderID], null)
+            in
+                if orderDate = null then false
+                else if [ReturnDate] > orderDate then true
+                else false,
+        type logical)
 in
-    removeCol
+    addValidation
 ```
 
 ### 4.5: Targets Transformation
